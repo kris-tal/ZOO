@@ -1,31 +1,3 @@
-CREATE OR REPLACE FUNCTION dobry_pesel(pesel CHAR(11))
-RETURNS BOOLEAN AS $$
-DECLARE
-    kontrolna INTEGER;
-    waga INTEGER[] := ARRAY[1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
-    suma INTEGER := 0;
-BEGIN
-    IF NOT pesel ~ '^[0-9]+$' THEN
-        RETURN FALSE;
-    END IF;
-
-    IF LENGTH(pesel) != 11 THEN
-        RETURN FALSE;
-    END IF;
-
-    FOR i IN 1..10 LOOP
-        suma := suma + waga[i] * CAST(SUBSTRING(pesel FROM i FOR 1) AS INTEGER);
-    END LOOP;
-
-    kontrolna := (10 - (suma % 10)) % 10;
-
-    IF kontrolna != CAST(SUBSTRING(pesel FROM 11 FOR 1) AS INTEGER) THEN
-        RETURN FALSE;
-    ELSE
-        RETURN TRUE;
-    END IF;
-END;
-$$
 
 CREATE TABLE pracownicy (
     id SERIAL PRIMARY KEY ,
@@ -121,3 +93,31 @@ CREATE TABLE plan_tygodnia (
     CHECK(CASE WHEN id_sprzat IS NULL THEN 0 ELSE 1 END + CASE WHEN id_karm IS NULL THEN 0 ELSE 1 END + CASE WHEN id_popis IS NULL THEN 0 ELSE 1 END = 1) --na razie to tak rozwiazalam ale nie wiem
 );
 
+CREATE OR REPLACE FUNCTION dobry_pesel(pesel CHAR(11))
+RETURNS BOOLEAN AS $$
+DECLARE
+    kontrolna INTEGER;
+    waga INTEGER[] := ARRAY[1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
+    suma INTEGER := 0;
+BEGIN
+    IF NOT pesel ~ '^[0-9]+$' THEN
+        RETURN FALSE;
+    END IF;
+
+    IF LENGTH(pesel) != 11 THEN
+        RETURN FALSE;
+    END IF;
+
+    FOR i IN 1..10 LOOP
+        suma := suma + waga[i] * CAST(SUBSTRING(pesel FROM i FOR 1) AS INTEGER);
+    END LOOP;
+
+    kontrolna := (10 - (suma % 10)) % 10;
+
+    IF kontrolna != CAST(SUBSTRING(pesel FROM 11 FOR 1) AS INTEGER) THEN
+        RETURN FALSE;
+    ELSE
+        RETURN TRUE;
+    END IF;
+END;
+$$ LANGUAGE PLPGSQL;
