@@ -1,3 +1,7 @@
+CREATE TABLE godz_otwarcia (
+    otwarcie TIME NOT NULL,
+    zamkniecie TIME NOT NULL
+);
 
 CREATE TABLE pracownicy (
     id SERIAL PRIMARY KEY ,
@@ -6,6 +10,9 @@ CREATE TABLE pracownicy (
     pesel CHAR(11) CHECK(dobry_pesel(pesel)),
     godz_od TIME DEFAULT '8:00',
     godz_do TIME DEFAULT '16:00'
+    pesel CHAR(11) CHECK(true) ,
+    godz_od TIME DEFAULT '8:00'::time NOT NULL ,        --nie ograniczamy godzin pracy bo mozna pracowac w nocy
+    godz_do TIME DEFAULT '15:00'::time NOT NULL
 );
 
 CREATE TABLE konta (
@@ -33,12 +40,14 @@ CREATE TABLE gatunki (
     nazwa VARCHAR(100) NOT NULL UNIQUE,
     wybieg INTEGER REFERENCES wybiegi(id) NOT NULL ,
     licznosc INTEGER  --to  trzeba polaczyc ze zwierzetami zeby je jakos zliczalo
+    licznosc INTEGER
 );
 
 CREATE TABLE zwierzeta (
     id SERIAL PRIMARY KEY ,
     gatunek INTEGER REFERENCES gatunki(id) NOT NULL ,
     imie VARCHAR(40) , --to jest niepotrzebne w sumie ale slodki
+    imie VARCHAR(40) , --to jest niepotrzebne w sumie ale slodko
     poz_umiej INTEGER CHECK(poz_umiej >= 0 AND poz_umiej <= 10) NOT NULL
 );
 
@@ -92,6 +101,7 @@ CREATE TABLE plan_tygodnia (
     id_popis INTEGER ,
     CHECK(CASE WHEN id_sprzat IS NULL THEN 0 ELSE 1 END + CASE WHEN id_karm IS NULL THEN 0 ELSE 1 END + CASE WHEN id_popis IS NULL THEN 0 ELSE 1 END = 1) --na razie to tak rozwiazalam ale nie wiem
 );
+--========================================= FUNKCJE =========================================--
 
 CREATE OR REPLACE FUNCTION dobry_pesel(pesel CHAR(11))
 RETURNS BOOLEAN AS $$
@@ -99,25 +109,84 @@ DECLARE
     kontrolna INTEGER;
     waga INTEGER[] := ARRAY[1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
     suma INTEGER := 0;
+------ updatuje licznosc gatunku
+CREATE FUNCTION update_licznosc_gatunku()
+RETURNS TRIGGER AS $$
 BEGIN
     IF NOT pesel ~ '^[0-9]+$' THEN
         RETURN FALSE;
+    UPDATE gatunki
+    SET licznosc = (
+        SELECT COUNT(*)
+        FROM zwierzeta
+        WHERE zwierzeta.gatunek = NEW.gatunek
+    )
+    WHERE id = NEW.gatunek;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER change_zwierzeta
+    AFTER INSERT OR UPDATE OR DELETE ON zwierzeta
+    FOR EACH ROW EXECUTE FUNCTION update_licznosc_gatunku();
+-------------------------------------------------------------------------------------
+------ sprawdzam czy aktywnosc nie jest poza czasem otwarcia zoo
+CREATE FUNCTION check_godz_otwarcia() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF NEW.godz_od < (SELECT otwarcie FROM godz_otwarcia LIMIT 1) THEN
+        RAISE EXCEPTION 'Godzina rozpoczęcia musi być po godzinie otwarcia';
     END IF;
 
     IF LENGTH(pesel) != 11 THEN
         RETURN FALSE;
+    IF NEW.godz_do > (SELECT zamkniecie FROM godz_otwarcia LIMIT 1) THEN
+        RAISE EXCEPTION 'Godzina zakończenia musi być przed godziną zamknięcia';
     END IF;
 
     FOR i IN 1..10 LOOP
         suma := suma + waga[i] * CAST(SUBSTRING(pesel FROM i FOR 1) AS INTEGER);
     END LOOP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER akt_godz_otwarcia
+    BEFORE INSERT OR UPDATE ON plan_tygodnia
+    FOR EACH ROW EXECUTE FUNCTION check_godz_otwarcia();
+-------------------------------------------------------------------------------------
 
     kontrolna := (10 - (suma % 10)) % 10;
+-- musze zrobic to w druga strone - jak updatuje godz otwarcia to musze sprawdzic wszystko w planie dnia czy pasuje
+-- i albo nie pozwolic zmienic albo usunac
 
     IF kontrolna != CAST(SUBSTRING(pesel FROM 11 FOR 1) AS INTEGER) THEN
         RETURN FALSE;
     ELSE
         RETURN TRUE;
+------ pilnuje czy jest tylko jedna krotka w relacji godz_otwarcia
+CREATE OR REPLACE FUNCTION jeden() RETURNS TRIGGER
+AS $$
+DECLARE
+    licznik INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO licznik FROM godz_otwarcia;
+
+    IF TG_OP = 'INSERT' AND licznik = 1 THEN
+        RAISE EXCEPTION 'Nie można dodać więcej niż jednych godzin otwarcia. Możesz je edytować';
+    ELSEIF TG_OP = 'DELETE' THEN
+        RAISE EXCEPTION 'Nie można usunąć jedynego wiersza w tabeli';
+    END IF;
+
+    IF TG_OP = 'INSERT' THEN RETURN NEW;
+    ELSE RETURN OLD;
     END IF;
 END;
-$$ LANGUAGE PLPGSQL;
+$$ LANGUAGE PLPGSQL;$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER pojedynczy_wiersz
+    BEFORE INSERT OR DELETE ON godz_otwarcia
+    FOR EACH ROW EXECUTE FUNCTION jeden();
+
+-------------------------------------------------------------------------------------
