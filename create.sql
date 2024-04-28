@@ -9,7 +9,7 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    IF LENGTH(p_pesel) != 11 THEN
+    IF LENGTH(pesel) != 11 THEN
         RETURN FALSE;
     END IF;
 
