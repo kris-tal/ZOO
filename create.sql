@@ -1,6 +1,7 @@
 --========================================= ZWYKLE FUNKCJE =========================================--
 
 ------ sprawdzam czy pesel jest poprawny
+CREATE FUNCTION dobry_pesel(pesel CHAR(11))
 RETURNS BOOLEAN AS $$
 DECLARE
     kontrolna INTEGER;
