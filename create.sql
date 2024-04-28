@@ -1,10 +1,39 @@
+CREATE OR REPLACE FUNCTION dobry_pesel(pesel CHAR(11))
+RETURNS BOOLEAN AS $$
+DECLARE
+    kontrolna INTEGER;
+    waga INTEGER[] := ARRAY[1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
+    suma INTEGER := 0;
+BEGIN
+    IF NOT pesel ~ '^[0-9]+$' THEN
+        RETURN FALSE;
+    END IF;
+
+    IF LENGTH(p_pesel) != 11 THEN
+        RETURN FALSE;
+    END IF;
+
+    FOR i IN 1..10 LOOP
+        suma := suma + waga[i] * CAST(SUBSTRING(pesel FROM i FOR 1) AS INTEGER);
+    END LOOP;
+
+    kontrolna := (10 - (suma % 10)) % 10;
+
+    IF kontrolna != CAST(SUBSTRING(pesel FROM 11 FOR 1) AS INTEGER) THEN
+        RETURN FALSE;
+    ELSE
+        RETURN TRUE;
+    END IF;
+END;
+$$
+
 CREATE TABLE pracownicy (
     id SERIAL PRIMARY KEY ,
     imie VARCHAR(40) NOT NULL ,
     nazwisko VARCHAR(40) NOT NULL ,
-    pesel CHAR(11) CHECK(true) , --trzeba napisac warunek zeby pesel byl dobry, na pewno musi byc pesel ~ '^[0-9]$' ze jest numerem i jakies warunki
+    pesel CHAR(11) CHECK(dobry_pesel(pesel)),
     godz_od TIME DEFAULT '8:00',
-    godz_do TIME DEFAULT '15:00'
+    godz_do TIME DEFAULT '16:00'
 );
 
 CREATE TABLE konta (
@@ -39,6 +68,13 @@ CREATE TABLE zwierzeta (
     gatunek INTEGER REFERENCES gatunki(id) NOT NULL ,
     imie VARCHAR(40) , --to jest niepotrzebne w sumie ale slodki
     poz_umiej INTEGER CHECK(poz_umiej >= 0 AND poz_umiej <= 10) NOT NULL
+);
+
+UPDATE gatunki g
+SET licznosc = (
+    SELECT COUNT(z.id)
+    FROM zwierzeta z
+    WHERE z.gatunek = g.id
 );
 
 CREATE TABLE prac_stan (
