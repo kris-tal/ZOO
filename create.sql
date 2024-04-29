@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS opiek_gat CASCADE;
 DROP TABLE IF EXISTS sprzat_wybieg CASCADE;
 DROP TABLE IF EXISTS popisy CASCADE;
 DROP TABLE IF EXISTS plan_tygodnia CASCADE;
+DROP VIEW IF EXISTS plan_szczegolowy CASCADE;
 
 --========================================= ZWYKLE FUNKCJE =========================================--
 
@@ -60,7 +61,7 @@ CREATE TABLE pracownicy (
     id SERIAL PRIMARY KEY ,
     imie VARCHAR(40) NOT NULL ,
     nazwisko VARCHAR(40) NOT NULL ,
-    pesel CHAR(11), --CHECK(dobry_pesel(pesel)) ,
+    pesel CHAR(11), CHECK(dobry_pesel(pesel)) ,
     godz_od TIME DEFAULT '8:00'::time NOT NULL ,        --nie ograniczamy godzin pracy bo mozna pracowac w nocy
     godz_do TIME DEFAULT '15:00'::time NOT NULL,
     UNIQUE(imie, nazwisko, pesel)
@@ -152,7 +153,7 @@ dzien_tyg, pt.godz_od, pt.godz_do,
 CASE WHEN id_sprzat IS NOT NULL THEN 'Sprzatanie'
 WHEN id_karm IS NOT NULL THEN 'Karminie'
 ELSE 'Popis' END AS rodzaj, 
-w.id AS id_wybieg, s.nazwa AS strefa, p.id AS id_popisu, pr.id AS id_trener, pr.imie, pr.nazwisko, gat.nazwa AS gatunek, min_ilosc, min_poz, g.nazwa, g.id_wybieg, g.licznosc
+w.id AS wybieg, s.nazwa AS strefa, p.id AS id_popisu, pr.id AS id_trener, pr.imie, pr.nazwisko, gat.nazwa AS gatunek, min_ilosc, min_poz, g.nazwa, g.id_wybieg, g.licznosc
 
 FROM plan_tygodnia pt 
 LEFT OUTER JOIN wybiegi w ON pt.id_sprzat = w.id
