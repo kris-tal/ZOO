@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS opiek_gat CASCADE;
 DROP TABLE IF EXISTS sprzat_wybieg CASCADE;
 DROP TABLE IF EXISTS popisy CASCADE;
 DROP TABLE IF EXISTS plan_tygodnia CASCADE;
+DROP VIEW IF EXISTS plan_szczegolowy CASCADE;
 
 --========================================= ZWYKLE FUNKCJE =========================================--
 
