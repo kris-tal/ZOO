@@ -152,7 +152,7 @@ dzien_tyg, pt.godz_od, pt.godz_do,
 CASE WHEN id_sprzat IS NOT NULL THEN 'Sprzatanie'
 WHEN id_karm IS NOT NULL THEN 'Karminie'
 ELSE 'Popis' END AS rodzaj, 
-w.id AS id_wybieg, s.nazwa AS strefa, p.id AS id_popisu, pr.id AS id_trener, pr.imie, pr.nazwisko, gat.nazwa AS gatunek, min_ilosc, min_poz, g.nazwa, g.id_wybieg, g.licznosc
+w.id AS wybieg, s.nazwa AS strefa, p.id AS id_popisu, pr.id AS id_trener, pr.imie, pr.nazwisko, gat.nazwa AS gatunek, min_ilosc, min_poz, g.nazwa, g.id_wybieg, g.licznosc
 
 FROM plan_tygodnia pt 
 LEFT OUTER JOIN wybiegi w ON pt.id_sprzat = w.id
