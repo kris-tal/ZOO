@@ -1,5 +1,3 @@
--- clean.sql
-
 -- tabele
 
 DROP TABLE IF EXISTS plan_tygodnia CASCADE;
