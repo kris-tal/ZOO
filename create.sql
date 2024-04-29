@@ -232,6 +232,24 @@ CREATE TABLE plan_tygodnia (
     CHECK(CASE WHEN id_sprzat IS NULL THEN 0 ELSE 1 END + CASE WHEN id_karm IS NULL THEN 0 ELSE 1 END + CASE WHEN id_popis IS NULL THEN 0 ELSE 1 END = 1) --na razie to tak rozwiazalam ale nie wiem
 );
 
+-- na razie cos takiego
+CREATE VIEW plan_szczegolowy AS
+SELECT
+dzien_tyg, pt.godz_od, pt.godz_do,
+CASE WHEN id_sprzat IS NOT NULL THEN 'Sprzatanie'
+WHEN id_karm IS NOT NULL THEN 'Karminie'
+ELSE 'Popis' END AS rodzaj, 
+w.id AS id_wybieg, s.nazwa AS strefa, p.id AS id_popisu, pr.id AS id_trener, pr.imie, pr.nazwisko, czas_trwania, gat.nazwa AS gatunek, min_ilosc, min_poz, g.nazwa, g.wybieg, g.licznosc
+
+FROM plan_tygodnia pt 
+LEFT OUTER JOIN wybiegi w ON pt.id_sprzat = w.id
+LEFT OUTER JOIN popisy p ON pt.id_popis = p.id
+LEFT OUTER JOIN gatunki g ON pt.id_karm = g.id
+LEFT OUTER JOIN strefy s ON w.strefa = s.id
+LEFT OUTER JOIN pracownicy pr ON p.trener = pr.id
+LEFT OUTER JOIN gatunki gat ON p.gatunek = gat.id
+
+ORDER BY dzien_tyg, godz_od;
 
 --========================================= TRIGGER FUNKCJE =========================================--
 
