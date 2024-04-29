@@ -1,3 +1,20 @@
+--========================================= DROP IF EXISTS =========================================--
+
+DROP TABLE IF EXISTS godz_otwarcia CASCADE;
+DROP TABLE IF EXISTS pracownicy CASCADE;
+DROP TABLE IF EXISTS konta CASCADE;
+DROP TABLE IF EXISTS stanowisko CASCADE;
+DROP TABLE IF EXISTS strefy CASCADE;
+DROP TABLE IF EXISTS wybiegi CASCADE;
+DROP TABLE IF EXISTS gatunki CASCADE;
+DROP TABLE IF EXISTS zwierzeta CASCADE;
+DROP TABLE IF EXISTS prac_stan CASCADE;
+DROP TABLE IF EXISTS tren_gat CASCADE;
+DROP TABLE IF EXISTS opiek_gat CASCADE;
+DROP TABLE IF EXISTS sprzat_wybieg CASCADE;
+DROP TABLE IF EXISTS popisy CASCADE;
+DROP TABLE IF EXISTS plan_tygodnia CASCADE;
+
 --========================================= ZWYKLE FUNKCJE =========================================--
 
 ------ sprawdzam czy pesel jest poprawny
@@ -100,7 +117,7 @@ CREATE TABLE opiek_gat (
     PRIMARY KEY(id_prac, id_gat)
 );
 
-CREATE TABLE sprzat_klat (
+CREATE TABLE sprzat_wybieg (
     id_prac INTEGER REFERENCES pracownicy(id) NOT NULL ,
     id_wybieg INTEGER REFERENCES wybiegi(id) NOT NULL ,
     PRIMARY KEY(id_prac, id_wybieg)
@@ -149,10 +166,11 @@ CREATE TRIGGER change_zwierzeta
     AFTER INSERT OR UPDATE OR DELETE ON zwierzeta
     FOR EACH ROW EXECUTE FUNCTION update_licznosc_gatunku();
 -------------------------------------------------------------------------------------
------- sprawdzam czy aktywnosc nie jest poza czasem otwarcia zoo
+------ sprawdzam czy popis nie jest poza czasem otwarcia zoo
 CREATE FUNCTION check_godz_otwarcia() RETURNS TRIGGER
 AS $$
 BEGIN
+    IF NEW.id_popis IS NULL THEN RETURN NEW; END IF;        --dla srzatania i karmienia nie sprawdzamy
     IF NEW.godz_od < (SELECT otwarcie FROM godz_otwarcia LIMIT 1) THEN
         RAISE EXCEPTION 'Godzina rozpoczęcia musi być po godzinie otwarcia';
     END IF;
@@ -165,14 +183,30 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER akt_godz_otwarcia
+CREATE TRIGGER akt_popisow
     BEFORE INSERT OR UPDATE ON plan_tygodnia
     FOR EACH ROW EXECUTE FUNCTION check_godz_otwarcia();
 -------------------------------------------------------------------------------------
 
 -- musze zrobic to w druga strone - jak updatuje godz otwarcia to musze sprawdzic wszystko w planie dnia czy pasuje
 -- i albo nie pozwolic zmienic albo usunac
+------ sprawdzam czy nowe godziny otwarcia nie koliduja z jakimis popisami
+CREATE FUNCTION check_godz_popisow() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF (SELECT COUNT(*) FROM plan_tygodnia WHERE id_popis IS NOT NULL AND godz_od < NEW.otwarcie)
+        OR (SELECT COUNT(*) FROM plan_tygodnia WHERE id_popis IS NOT NULL AND godz_do > NEW.otwarcie) THEN
+        RAISE EXCEPTION 'Nowa godzina rozpoczęcia koliduje z istniejącymi popisami';
+    END IF;
 
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER akt_godz_otwarcia
+    BEFORE INSERT OR UPDATE ON godz_otwarcia
+    FOR EACH ROW EXECUTE FUNCTION check_godz_popisow();
+-------------------------------------------------------------------------------------
 ------ pilnuje czy jest tylko jedna krotka w relacji godz_otwarcia
 CREATE OR REPLACE FUNCTION jeden() RETURNS TRIGGER
 AS $$
@@ -198,3 +232,6 @@ CREATE TRIGGER pojedynczy_wiersz
     FOR EACH ROW EXECUTE FUNCTION jeden();
 
 -------------------------------------------------------------------------------------
+
+--========================================= INSERTY =========================================--
+
