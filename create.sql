@@ -60,7 +60,7 @@ CREATE TABLE pracownicy (
     id SERIAL PRIMARY KEY ,
     imie VARCHAR(40) NOT NULL ,
     nazwisko VARCHAR(40) NOT NULL ,
-    pesel CHAR(11), --CHECK(dobry_pesel(pesel)) ,
+    pesel CHAR(11), CHECK(dobry_pesel(pesel)) ,
     godz_od TIME DEFAULT '8:00'::time NOT NULL ,        --nie ograniczamy godzin pracy bo mozna pracowac w nocy
     godz_do TIME DEFAULT '15:00'::time NOT NULL,
     UNIQUE(imie, nazwisko, pesel)
