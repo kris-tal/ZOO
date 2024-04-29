@@ -53,7 +53,7 @@ $$ LANGUAGE PLPGSQL;
 
 CREATE TABLE godz_otwarcia (
     otwarcie TIME NOT NULL,
-    zamkniecie TIME NOT NULL
+    zamkniecie TIME CHECK(zamkniecie > otwarcie)  NOT NULL
 );
 
 CREATE TABLE pracownicy (
@@ -214,8 +214,12 @@ CREATE TRIGGER akt_popisow
 CREATE FUNCTION check_godz_popisow() RETURNS TRIGGER
 AS $$
 BEGIN
-    IF (SELECT COUNT(*) FROM plan_tygodnia WHERE id_popis IS NOT NULL AND godz_od < NEW.otwarcie)
-        OR (SELECT COUNT(*) FROM plan_tygodnia WHERE id_popis IS NOT NULL AND godz_do > NEW.otwarcie) THEN
+    IF EXISTS (
+        SELECT true
+        FROM plan_tygodnia
+        WHERE id_popis IS NOT NULL
+        AND (godz_od < NEW.otwarcie OR godz_do > NEW.zamkniecie)
+    ) THEN
         RAISE EXCEPTION 'Nowa godzina rozpoczęcia koliduje z istniejącymi popisami';
     END IF;
 
@@ -255,6 +259,8 @@ CREATE TRIGGER pojedynczy_wiersz
 
 
 --========================================= INSERTY =========================================--
+INSERT INTO godz_otwarcia (otwarcie, zamkniecie) VALUES
+('8:00'::time, '19:00'::time);
 
 INSERT INTO pracownicy (imie, nazwisko, pesel, godz_od, godz_do) VALUES
 ('Józef', 'Sanetra', '85090127679', '3:00', '10:00'),
