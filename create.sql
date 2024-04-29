@@ -226,9 +226,9 @@ CREATE TABLE plan_tygodnia (
     dzien_tyg INTEGER CHECK(dzien_tyg >= 1 AND dzien_tyg <= 7) NOT NULL ,
     godz_od TIME NOT NULL ,
     godz_do TIME NOT NULL ,
-    id_sprzat INTEGER ,
-    id_karm INTEGER ,
-    id_popis INTEGER ,
+    id_sprzat INTEGER REFERENCES wybiegi(id) ,
+    id_karm INTEGER REFERENCES gatunki(id) ,
+    id_popis INTEGER REFERENCES popisy(id) ,
     CHECK(CASE WHEN id_sprzat IS NULL THEN 0 ELSE 1 END + CASE WHEN id_karm IS NULL THEN 0 ELSE 1 END + CASE WHEN id_popis IS NULL THEN 0 ELSE 1 END = 1) --na razie to tak rozwiazalam ale nie wiem
 );
 
