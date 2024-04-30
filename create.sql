@@ -14,7 +14,8 @@ DROP TABLE IF EXISTS opiek_gat CASCADE;
 DROP TABLE IF EXISTS sprzat_wybieg CASCADE;
 DROP TABLE IF EXISTS popisy CASCADE;
 DROP TABLE IF EXISTS plan_tygodnia CASCADE;
-DROP VIEW IF EXISTS plan_szczegolowy CASCADE;
+DROP VIEW IF EXISTS plan_24h CASCADE;
+DROP VIEW IF EXISTS plan_godz_otwarcia CASCADE;
 
 --========================================= ZWYKLE FUNKCJE =========================================--
 
@@ -145,16 +146,15 @@ CREATE TABLE plan_tygodnia (
     CHECK(CASE WHEN id_sprzat IS NULL THEN 0 ELSE 1 END + CASE WHEN id_karm IS NULL THEN 0 ELSE 1 END + CASE WHEN id_popis IS NULL THEN 0 ELSE 1 END = 1) --na razie to tak rozwiazalam ale nie wiem
 );
 
--- na razie cos takiego
-CREATE VIEW plan_szczegolowy AS
+CREATE VIEW plan_24h AS
 SELECT
 dzien_tyg, pt.godz_od, pt.godz_do,
 CASE WHEN id_sprzat IS NOT NULL THEN 'Sprzatanie'
 WHEN id_karm IS NOT NULL THEN 'Karminie'
-ELSE 'Popis' END AS rodzaj, 
+ELSE 'Popis' END AS rodzaj,
 w.id AS wybieg, s.nazwa AS strefa, p.id AS id_popisu, pr.id AS id_trener, pr.imie, pr.nazwisko, gat.nazwa AS gatunek, min_ilosc, min_poz, g.nazwa, g.id_wybieg, g.licznosc
 
-FROM plan_tygodnia pt 
+FROM plan_tygodnia pt
 LEFT OUTER JOIN wybiegi w ON pt.id_sprzat = w.id
 LEFT OUTER JOIN popisy p ON pt.id_popis = p.id
 LEFT OUTER JOIN gatunki g ON pt.id_karm = g.id
@@ -162,6 +162,13 @@ LEFT OUTER JOIN strefy s ON w.strefa = s.id
 LEFT OUTER JOIN pracownicy pr ON p.trener = pr.id
 LEFT OUTER JOIN gatunki gat ON p.gatunek = gat.id
 
+ORDER BY dzien_tyg, godz_od;
+
+-- do poprawy co jak otwarcie/zamkniecie w trsakcie kar/sprz
+CREATE VIEW plan_godz_otwarcia AS
+SELECT * FROM plan_24h
+WHERE godz_od > (SELECT otwarcie FROM godz_otwarcia)
+AND godz_do < (SELECT zamkniecie FROM godz_otwarcia)
 ORDER BY dzien_tyg, godz_od;
 
 --========================================= TRIGGER FUNKCJE =========================================--
