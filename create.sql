@@ -219,7 +219,7 @@ BEGIN
         SELECT true
         FROM plan_tygodnia
         WHERE id_popis IS NOT NULL
-        AND (godz_od < NEW.otwarcie OR godz_do > NEW.zamkniecie)
+        AND ((godz_od < NEW.otwarcie) OR (godz_do > NEW.zamkniecie))
     ) THEN
         RAISE EXCEPTION 'Nowa godzina rozpoczęcia koliduje z istniejącymi popisami';
     END IF;
