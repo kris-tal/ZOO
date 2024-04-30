@@ -70,7 +70,7 @@ CREATE TABLE pracownicy (
 
 CREATE TABLE konta (
     id_prac INTEGER PRIMARY KEY REFERENCES pracownicy(id),
-    haslo INTEGER, --to bedzie hash hasla ale hashowanie juz chyba w javie
+    haslo INTEGER --to bedzie hash hasla ale hashowanie juz chyba w javie
 );
 
 CREATE TABLE stanowisko (
