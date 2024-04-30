@@ -73,7 +73,7 @@ CREATE TABLE konta (
     haslo INTEGER --to bedzie hash hasla ale hashowanie juz chyba w javie
 );
 
-CREATE TABLE stanowisko (
+CREATE TABLE stanowiska (
     id SERIAL PRIMARY KEY ,
     nazwa CHAR(20) CHECK(nazwa = 'zarzadca' OR nazwa = 'sprzatacz' OR nazwa = 'trener' OR nazwa = 'opiekun') NOT NULL
 );
@@ -104,7 +104,7 @@ CREATE TABLE zwierzeta (
 
 CREATE TABLE prac_stan (
     id_prac INTEGER REFERENCES pracownicy(id) NOT NULL ,
-    id_stan INTEGER REFERENCES stanowisko(id) NOT NULL ,
+    id_stan INTEGER REFERENCES stanowiska(id) NOT NULL ,
     UNIQUE(id_prac, id_stan)
 );
 
@@ -148,9 +148,9 @@ CREATE TABLE plan_tygodnia (
 CREATE VIEW plan_24h AS
 SELECT
 dzien_tyg, pt.godz_od, pt.godz_do,
-CASE WHEN id_sprzat IS NOT NULL THEN 'Sprzatanie'
-WHEN id_karm IS NOT NULL THEN 'Karminie'
-ELSE 'Popis' END AS rodzaj,
+CASE WHEN id_sprzat IS NOT NULL THEN 'sprzatanie'
+WHEN id_karm IS NOT NULL THEN 'karmienie'
+ELSE 'popis' END AS rodzaj,
 w.id AS wybieg, s.nazwa AS strefa, p.id AS id_popisu, pr.id AS id_trener, pr.imie, pr.nazwisko, gat.nazwa AS gatunek, min_ilosc, min_poz, g.nazwa, g.id_wybieg, g.licznosc
 
 FROM plan_tygodnia pt
@@ -472,7 +472,7 @@ INSERT INTO konta (id_prac, haslo) VALUES
 (99, 326436),
 (100, 894919);
 
-INSERT INTO stanowisko (nazwa) VALUES
+INSERT INTO stanowiska (nazwa) VALUES
 ('zarzadca'),
 ('sprzatacz'),
 ('trener'),
