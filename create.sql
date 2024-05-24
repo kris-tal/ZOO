@@ -1,21 +1,21 @@
 --========================================= DROP IF EXISTS =========================================--
 
-DROP TABLE IF EXISTS godz_otwarcia CASCADE;
+DROP TABLE IF EXISTS godziny_otwarcia CASCADE;
 DROP TABLE IF EXISTS pracownicy CASCADE;
 DROP TABLE IF EXISTS konta CASCADE;
-DROP TABLE IF EXISTS stanowisko CASCADE;
+DROP TABLE IF EXISTS stanowiska CASCADE;
 DROP TABLE IF EXISTS strefy CASCADE;
 DROP TABLE IF EXISTS wybiegi CASCADE;
 DROP TABLE IF EXISTS gatunki CASCADE;
 DROP TABLE IF EXISTS zwierzeta CASCADE;
-DROP TABLE IF EXISTS prac_stan CASCADE;
-DROP TABLE IF EXISTS tren_gat CASCADE;
-DROP TABLE IF EXISTS opiek_gat CASCADE;
-DROP TABLE IF EXISTS sprzat_wybieg CASCADE;
+DROP TABLE IF EXISTS pracownicy_stanowiska CASCADE;
+DROP TABLE IF EXISTS trenerzy_gatunki CASCADE;
+DROP TABLE IF EXISTS opiekunowie_gatunki CASCADE;
+DROP TABLE IF EXISTS sprzatacze_wybiegi CASCADE;
 DROP TABLE IF EXISTS popisy CASCADE;
 DROP TABLE IF EXISTS plan_tygodnia CASCADE;
 DROP VIEW IF EXISTS plan_24h CASCADE;
-DROP VIEW IF EXISTS plan_godz_otwarcia CASCADE;
+DROP VIEW IF EXISTS plan_godziny_otwarcia CASCADE;
 
 --========================================= ZWYKLE FUNKCJE =========================================--
 
@@ -53,95 +53,91 @@ $$ LANGUAGE PLPGSQL;
 
 --========================================= RELACJE =========================================--
 
-CREATE TABLE godz_otwarcia (
-    otwarcie TIME NOT NULL,
-    zamkniecie TIME CHECK(zamkniecie > otwarcie)  NOT NULL
+CREATE TABLE godziny_otwarcia (
+    otwarcie TIME PRIMARY KEY,
+    zamkniecie TIME CHECK(zamkniecie > otwarcie) NOT NULL
 );
 
 CREATE TABLE pracownicy (
-    id SERIAL PRIMARY KEY ,
-    imie VARCHAR(40) NOT NULL ,
-    nazwisko VARCHAR(40) NOT NULL ,
-    pesel CHAR(11), CHECK(dobry_pesel(pesel)) ,
+    id SERIAL PRIMARY KEY,
+    imie VARCHAR(40) NOT NULL,
+    nazwisko VARCHAR(40) NOT NULL,
+    pesel CHAR(11), CHECK(dobry_pesel(pesel)),
+    haslo INTEGER, --to bedzie hash hasla ale hashowanie juz chyba w javie
     godz_od TIME DEFAULT '8:00'::time NOT NULL ,        --nie ograniczamy godzin pracy bo mozna pracowac w nocy
     godz_do TIME DEFAULT '15:00'::time NOT NULL,
     UNIQUE(imie, nazwisko, pesel)
 );
 
-CREATE TABLE konta (
-    id_prac INTEGER PRIMARY KEY REFERENCES pracownicy(id),
-    haslo INTEGER --to bedzie hash hasla ale hashowanie juz chyba w javie
-);
-
 CREATE TABLE stanowiska (
-    id SERIAL PRIMARY KEY ,
-    nazwa CHAR(20) CHECK(nazwa = 'zarzadca' OR nazwa = 'sprzatacz' OR nazwa = 'trener' OR nazwa = 'opiekun') NOT NULL
+    id SERIAL PRIMARY KEY,
+    nazwa CHAR(40) NOT NULL UNIQUE
 );
 
 CREATE TABLE strefy (
-    id SERIAL PRIMARY KEY ,
+    id SERIAL PRIMARY KEY,
     nazwa VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE wybiegi (
-    id SERIAL PRIMARY KEY ,
+    id SERIAL PRIMARY KEY,
     strefa INTEGER REFERENCES strefy(id) NOT NULL
 );
 
 CREATE TABLE gatunki (
-    id SERIAL PRIMARY KEY ,
+    id SERIAL PRIMARY KEY,
     nazwa VARCHAR(100) NOT NULL UNIQUE,
-    id_wybieg INTEGER REFERENCES wybiegi(id) NOT NULL ,
+    id_wybieg INTEGER REFERENCES wybiegi(id) NOT NULL,
     licznosc INTEGER DEFAULT 0
 );
 
 CREATE TABLE zwierzeta (
-    id SERIAL PRIMARY KEY ,
-    gatunek INTEGER REFERENCES gatunki(id) NOT NULL ,
-    imie VARCHAR(40) , --to jest niepotrzebne w sumie ale slodko
-    poz_umiej INTEGER CHECK(poz_umiej >= 0 AND poz_umiej <= 10) NOT NULL
+    id SERIAL PRIMARY KEY,
+    gatunek INTEGER REFERENCES gatunki(id) NOT NULL,
+    imie VARCHAR(40), --to jest niepotrzebne w sumie ale slodko
+    poziom_umiejetnosci INTEGER CHECK(poziom_umiejetnosci >= 0 AND poziom_umiejetnosci <= 10) NOT NULL
 );
 
-CREATE TABLE prac_stan (
-    id_prac INTEGER REFERENCES pracownicy(id) NOT NULL ,
-    id_stan INTEGER REFERENCES stanowiska(id) NOT NULL ,
-    UNIQUE(id_prac, id_stan)
+CREATE TABLE pracownicy_stanowiska (
+    id_prac INTEGER REFERENCES pracownicy(id),
+    id_stan INTEGER REFERENCES stanowiska(id),
+    PRIMARY KEY(id_prac, id_stan)
 );
 
-CREATE TABLE tren_gat (
-    id_prac INTEGER REFERENCES pracownicy(id) NOT NULL ,
-    id_gat INTEGER REFERENCES gatunki(id) NOT NULL ,
+CREATE TABLE trenerzy_gatunki (
+    id_prac INTEGER REFERENCES pracownicy(id),
+    id_gat INTEGER REFERENCES gatunki(id),
     PRIMARY KEY(id_prac, id_gat)
 );
 
-CREATE TABLE opiek_gat (
-    id_prac INTEGER REFERENCES pracownicy(id) NOT NULL ,
-    id_gat INTEGER REFERENCES gatunki(id) NOT NULL ,
+CREATE TABLE opiekunowie_gatunki (
+    id_prac INTEGER REFERENCES pracownicy(id),
+    id_gat INTEGER REFERENCES gatunki(id),
     PRIMARY KEY(id_prac, id_gat)
 );
 
-CREATE TABLE sprzat_wybieg (
-    id_prac INTEGER REFERENCES pracownicy(id) NOT NULL ,
-    id_wybieg INTEGER REFERENCES wybiegi(id) NOT NULL ,
+CREATE TABLE sprzatacze_wybiegi (
+    id_prac INTEGER REFERENCES pracownicy(id),
+    id_wybieg INTEGER REFERENCES wybiegi(id),
     PRIMARY KEY(id_prac, id_wybieg)
 );
 
 CREATE TABLE popisy (
     id SERIAL PRIMARY KEY ,
-    trener INTEGER REFERENCES pracownicy(id) NOT NULL ,
-    gatunek INTEGER REFERENCES gatunki(id) NOT NULL ,
-    min_ilosc INTEGER CHECK(min_ilosc > 0) ,
+    trener INTEGER REFERENCES pracownicy(id) NOT NULL,
+    gatunek INTEGER REFERENCES gatunki(id) NOT NULL,
+    min_ilosc INTEGER CHECK(min_ilosc > 0),
     min_poz INTEGER CHECK(min_ilosc >= 0 AND min_poz <= 10)
 );
 
 CREATE TABLE plan_tygodnia (
-    id SERIAL PRIMARY KEY ,
-    dzien_tyg INTEGER CHECK(dzien_tyg >= 1 AND dzien_tyg <= 7) NOT NULL ,
-    godz_od TIME NOT NULL ,
-    godz_do TIME NOT NULL ,
-    id_sprzat INTEGER REFERENCES wybiegi(id) ,
-    id_karm INTEGER REFERENCES gatunki(id) ,
-    id_popis INTEGER REFERENCES popisy(id) ,
+    id SERIAL PRIMARY KEY,
+    dzien_tyg INTEGER CHECK(dzien_tyg >= 1 AND dzien_tyg <= 7) NOT NULL,
+    godz_od TIME NOT NULL,
+    godz_do TIME NOT NULL,
+    id_sprzat INTEGER REFERENCES wybiegi(id),
+    id_karm INTEGER REFERENCES gatunki(id),
+    id_popis INTEGER REFERENCES popisy(id),
     CHECK(CASE WHEN id_sprzat IS NULL THEN 0 ELSE 1 END + CASE WHEN id_karm IS NULL THEN 0 ELSE 1 END + CASE WHEN id_popis IS NULL THEN 0 ELSE 1 END = 1) --na razie to tak rozwiazalam ale nie wiem
 );
 
@@ -164,10 +160,10 @@ LEFT OUTER JOIN gatunki gat ON p.gatunek = gat.id
 ORDER BY dzien_tyg, godz_od;
 
 -- do poprawy co jak otwarcie/zamkniecie w trsakcie kar/sprz
-CREATE VIEW plan_godz_otwarcia AS
+CREATE VIEW plan_godziny_otwarcia AS
 SELECT * FROM plan_24h
-WHERE godz_od > (SELECT otwarcie FROM godz_otwarcia)
-AND godz_do < (SELECT zamkniecie FROM godz_otwarcia)
+WHERE godz_od > (SELECT otwarcie FROM godziny_otwarcia)
+AND godz_do < (SELECT zamkniecie FROM godziny_otwarcia)
 ORDER BY dzien_tyg, godz_od;
 
 --========================================= TRIGGER FUNKCJE =========================================--
@@ -193,15 +189,15 @@ CREATE TRIGGER change_zwierzeta
     FOR EACH ROW EXECUTE FUNCTION update_licznosc_gatunku();
 -------------------------------------------------------------------------------------
 ------ sprawdzam czy popis nie jest poza czasem otwarcia zoo
-CREATE FUNCTION check_godz_otwarcia() RETURNS TRIGGER
+CREATE FUNCTION check_godziny_otwarcia() RETURNS TRIGGER
 AS $$
 BEGIN
     IF NEW.id_popis IS NULL THEN RETURN NEW; END IF;        --dla srzatania i karmienia nie sprawdzamy
-    IF NEW.godz_od < (SELECT otwarcie FROM godz_otwarcia LIMIT 1) THEN
+    IF NEW.godz_od < (SELECT otwarcie FROM godziny_otwarcia LIMIT 1) THEN
         RAISE EXCEPTION 'Godzina rozpoczęcia musi być po godzinie otwarcia';
     END IF;
 
-    IF NEW.godz_do > (SELECT zamkniecie FROM godz_otwarcia LIMIT 1) THEN
+    IF NEW.godz_do > (SELECT zamkniecie FROM godziny_otwarcia LIMIT 1) THEN
         RAISE EXCEPTION 'Godzina zakończenia musi być przed godziną zamknięcia';
     END IF;
 
@@ -211,7 +207,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER akt_popisow
     BEFORE INSERT OR UPDATE ON plan_tygodnia
-    FOR EACH ROW EXECUTE FUNCTION check_godz_otwarcia();
+    FOR EACH ROW EXECUTE FUNCTION check_godziny_otwarcia();
 -------------------------------------------------------------------------------------
 
 -- musze zrobic to w druga strone - jak updatuje godz otwarcia to musze sprawdzic wszystko w planie dnia czy pasuje
@@ -233,17 +229,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER akt_godz_otwarcia
-    BEFORE INSERT OR UPDATE ON godz_otwarcia
+CREATE TRIGGER akt_godziny_otwarcia
+    BEFORE INSERT OR UPDATE ON godziny_otwarcia
     FOR EACH ROW EXECUTE FUNCTION check_godz_popisow();
 -------------------------------------------------------------------------------------
------- pilnuje czy jest tylko jedna krotka w relacji godz_otwarcia
+------ pilnuje czy jest tylko jedna krotka w relacji godziny_otwarcia
 CREATE OR REPLACE FUNCTION jeden() RETURNS TRIGGER
 AS $$
 DECLARE
     licznik INTEGER;
 BEGIN
-    SELECT COUNT(*) INTO licznik FROM godz_otwarcia;
+    SELECT COUNT(*) INTO licznik FROM godziny_otwarcia;
 
     IF TG_OP = 'INSERT' AND licznik = 1 THEN
         RAISE EXCEPTION 'Nie można dodać więcej niż jednych godzin otwarcia. Możesz je edytować';
@@ -258,219 +254,118 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER pojedynczy_wiersz
-    BEFORE INSERT OR DELETE ON godz_otwarcia
+    BEFORE INSERT OR DELETE ON godziny_otwarcia
     FOR EACH ROW EXECUTE FUNCTION jeden();
 
 -------------------------------------------------------------------------------------
 
 
 --========================================= INSERTY =========================================--
-INSERT INTO godz_otwarcia (otwarcie, zamkniecie) VALUES
+INSERT INTO godziny_otwarcia (otwarcie, zamkniecie) VALUES
 ('8:00'::time, '19:00'::time);
 
-INSERT INTO pracownicy (imie, nazwisko, pesel, godz_od, godz_do) VALUES
-('Józef', 'Sanetra', '85090127679', '3:00', '10:00'),
-('Blanka', 'Kijas', '25011909517', '3:00', '11:00'),
-('Dagmara', 'Wolff', '03073139598', '11:00', '18:00'),
-('Elżbieta', 'Kuszyk', '20040926328', '13:00', '19:00'),
-('Anastazja', 'Kozon', '76042421194', '8:00', '15:00'),
-('Alex', 'Schubert', '14121654439', '3:00', '13:00'),
-('Maurycy', 'Szkaradek', '82112627751', '11:00', '21:00'),
-('Tobiasz', 'Wota', '62120872392', '8:00', '17:00'),
-('Ksawery', 'Tórz', '66050173897', '2:00', '12:00'),
-('Sandra', 'Pilarek', '29092312288', '2:00', '8:00'),
-('Aleks', 'Szram', '56033139231', '9:00', '19:00'),
-('Arkadiusz', 'Drygała', '18020918285', '7:00', '13:00'),
-('Marianna', 'Wojtczuk', '90030960159', '9:00', '17:00'),
-('Krystian', 'Tarasek', '09030433013', '1:00', '9:00'),
-('Ewelina', 'Nagel', '66012029758', '11:00', '17:00'),
-('Agnieszka', 'Huber', '83060308367', '9:00', '19:00'),
-('Gustaw', 'Policht', '88060750510', '9:00', '19:00'),
-('Ignacy', 'Władyka', '23012955612', '3:00', '10:00'),
-('Konstanty', 'Kolanko', '01041115289', '0:00', '10:00'),
-('Juliusz', 'Rećko', '64011456766', '1:00', '9:00'),
-('Grzegorz', 'Pietrasz', '61051369423', '5:00', '15:00'),
-('Dominik', 'Burchardt', '71051893086', '8:00', '15:00'),
-('Jan', 'Zyzik', '38030224017', '9:00', '17:00'),
-('Roksana', 'Kiszczak', '59010475362', '6:00', '14:00'),
-('Bruno', 'Prawdzik', '64052678679', '7:00', '17:00'),
-('Marcelina', 'Dub', '14021291543', '5:00', '12:00'),
-('Ewelina', 'Durlik', '11081347072', '2:00', '10:00'),
-('Kazimierz', 'Okła', '29120886477', '2:00', '9:00'),
-('Krystyna', 'Kazubek', '23060525919', '11:00', '19:00'),
-('Albert', 'Buszko', '68110981330', '3:00', '9:00'),
-('Paweł', 'Juszczuk', '99062212946', '13:00', '19:00'),
-('Alex', 'Dziewior', '31070395295', '10:00', '16:00'),
-('Julian', 'Strzała', '97012059553', '8:00', '17:00'),
-('Krzysztof', 'Palej', '84052251058', '0:00', '8:00'),
-('Marika', 'Księżak', '07092484026', '10:00', '20:00'),
-('Malwina', 'Dub', '15102040441', '10:00', '18:00'),
-('Anna Maria', 'Rabiej', '48041453353', '12:00', '22:00'),
-('Hubert', 'Gołofit', '22100365177', '11:00', '21:00'),
-('Albert', 'Serwach', '54012288985', '6:00', '13:00'),
-('Ryszard', 'Ubysz', '07071029277', '12:00', '18:00'),
-('Michał', 'Mydlarz', '65113092320', '10:00', '17:00'),
-('Angelika', 'Godzwon', '07021331865', '0:00', '7:00'),
-('Błażej', 'Nazarewicz', '55070526349', '10:00', '18:00'),
-('Józef', 'Gasek', '30030146388', '10:00', '19:00'),
-('Marianna', 'Cich', '56121636084', '1:00', '11:00'),
-('Aniela', 'Lepak', '89022662427', '7:00', '15:00'),
-('Liwia', 'Chalimoniuk', '21112700174', '13:00', '22:00'),
-('Ernest', 'Rezmer', '01102702887', '13:00', '23:00'),
-('Hubert', 'Filiks', '39013036751', '1:00', '7:00'),
-('Sylwia', 'Dybiec', '72040476495', '10:00', '19:00'),
-('Nikodem', 'Niedźwiadek', '81042846098', '9:00', '18:00'),
-('Justyna', 'Bieszke', '21120843070', '2:00', '8:00'),
-('Aleks', 'Granat', '18101235746', '11:00', '20:00'),
-('Aurelia', 'Smektała', '52032576606', '8:00', '15:00'),
-('Aniela', 'Wyskiel', '11062822509', '4:00', '12:00'),
-('Marek', 'Mirończuk', '17062497141', '2:00', '8:00'),
-('Marek', 'Wałaszek', '79012474305', '13:00', '20:00'),
-('Kazimierz', 'Stebel', '08032056466', '13:00', '22:00'),
-('Filip', 'Kołaczyk', '13030386196', '1:00', '7:00'),
-('Angelika', 'Kulus', '91121205964', '7:00', '17:00'),
-('Lidia', 'Golczyk', '50060567285', '10:00', '17:00'),
-('Aleksander', 'Dzieża', '99120178012', '10:00', '19:00'),
-('Kajetan', 'Dobrosz', '12011520080', '5:00', '14:00'),
-('Mikołaj', 'Pyrkosz', '75022181567', '4:00', '12:00'),
-('Karol', 'Cieciora', '65021926845', '2:00', '12:00'),
-('Alan', 'Budych', '42022002392', '3:00', '9:00'),
-('Wojciech', 'Glegoła', '03061707705', '1:00', '7:00'),
-('Julita', 'Prażuch', '45041055264', '9:00', '18:00'),
-('Nela', 'Kultys', '68020211840', '5:00', '11:00'),
-('Aleksander', 'Poreda', '28112702793', '13:00', '22:00'),
-('Sandra', 'Biernacik', '14051589351', '7:00', '15:00'),
-('Blanka', 'Rusnak', '20033170433', '8:00', '18:00'),
-('Marcelina', 'Tonder', '74010391155', '1:00', '8:00'),
-('Krzysztof', 'Dycha', '24092125018', '8:00', '17:00'),
-('Elżbieta', 'Koźlak', '49122042945', '4:00', '12:00'),
-('Agnieszka', 'Porzucek', '87051373475', '12:00', '21:00'),
-('Ryszard', 'Żołądź', '59050212194', '2:00', '9:00'),
-('Andrzej', 'Jędral', '22030968059', '8:00', '15:00'),
-('Artur', 'Chaba', '00052118445', '4:00', '14:00'),
-('Kornelia', 'Szuta', '72082279588', '3:00', '9:00'),
-('Albert', 'Roter', '72080465938', '9:00', '17:00'),
-('Ewa', 'Frydrychowicz', '57041458183', '11:00', '17:00'),
-('Natasza', 'Dzienis', '96041138796', '11:00', '21:00'),
-('Julianna', 'Cieciora', '47070518039', '7:00', '13:00'),
-('Jan', 'Jenek', '66080207739', '6:00', '13:00'),
-('Oskar', 'Pyda', '36071297645', '11:00', '17:00'),
-('Kornelia', 'Wośko', '34031812374', '5:00', '15:00'),
-('Cyprian', 'Ernst', '40071564603', '6:00', '14:00'),
-('Urszula', 'Giec', '29082928813', '4:00', '12:00'),
-('Piotr', 'Siergiej', '58092691992', '2:00', '10:00'),
-('Fryderyk', 'Hanc', '14090335094', '4:00', '14:00'),
-('Piotr', 'Godyń', '96010650933', '7:00', '14:00'),
-('Kazimierz', 'Durlej', '12052944791', '13:00', '21:00'),
-('Wojciech', 'Balas', '07010877165', '2:00', '9:00'),
-('Nela', 'Dudczak', '82072026447', '5:00', '14:00'),
-('Rozalia', 'Kapałka', '03042945201', '4:00', '14:00'),
-('Anastazja', 'Truchel', '03050925147', '3:00', '12:00'),
-('Natasza', 'Kożuszek', '79041885011', '2:00', '11:00'),
-('Kornel', 'Hamera', '82081887185', '10:00', '18:00'),
-('Janina', 'Fiołka', '37070524008', '1:00', '8:00');
-
-INSERT INTO konta (id_prac, haslo) VALUES
-(1, 930565),
-(2, 760668),
-(3, 610602),
-(4, 624866),
-(5, 274991),
-(6, 694958),
-(7, 362954),
-(8, 80502),
-(9, 134338),
-(10, 637364),
-(11, 47461),
-(12, 874364),
-(13, 371146),
-(14, 622042),
-(15, 20657),
-(16, 244014),
-(17, 293865),
-(18, 706307),
-(19, 171369),
-(20, 92900),
-(21, 406719),
-(22, 968536),
-(23, 122018),
-(24, 948333),
-(25, 142882),
-(26, 861780),
-(27, 852153),
-(28, 378330),
-(29, 16801),
-(30, 213187),
-(31, 426629),
-(32, 944582),
-(33, 688297),
-(34, 890332),
-(35, 29980),
-(36, 9657),
-(37, 586329),
-(38, 746769),
-(39, 808040),
-(40, 541219),
-(41, 55272),
-(42, 54414),
-(43, 187024),
-(44, 993334),
-(45, 34006),
-(46, 292135),
-(47, 723458),
-(48, 355743),
-(49, 112235),
-(50, 394978),
-(51, 113118),
-(52, 56414),
-(53, 621314),
-(54, 260184),
-(55, 735069),
-(56, 988819),
-(57, 435184),
-(58, 16010),
-(59, 869184),
-(60, 584062),
-(61, 778159),
-(62, 772659),
-(63, 45282),
-(64, 722908),
-(65, 564423),
-(66, 704907),
-(67, 761490),
-(68, 484747),
-(69, 256544),
-(70, 24143),
-(71, 915504),
-(72, 321447),
-(73, 321628),
-(74, 568728),
-(75, 679163),
-(76, 898155),
-(77, 954469),
-(78, 937073),
-(79, 502012),
-(80, 206045),
-(81, 260773),
-(82, 599594),
-(83, 592695),
-(84, 439548),
-(85, 885442),
-(86, 109555),
-(87, 590428),
-(88, 97202),
-(89, 260086),
-(90, 950816),
-(91, 48579),
-(92, 414921),
-(93, 785526),
-(94, 188095),
-(95, 678178),
-(96, 84386),
-(97, 729910),
-(98, 991629),
-(99, 326436),
-(100, 894919);
+-- hasla przeniesione do pracownikow wiec trzeba wygenerowac nowych
+-- INSERT INTO pracownicy (imie, nazwisko, pesel, godz_od, godz_do) VALUES
+-- ('Józef', 'Sanetra', '85090127679', '3:00', '10:00'),
+-- ('Blanka', 'Kijas', '25011909517', '3:00', '11:00'),
+-- ('Dagmara', 'Wolff', '03073139598', '11:00', '18:00'),
+-- ('Elżbieta', 'Kuszyk', '20040926328', '13:00', '19:00'),
+-- ('Anastazja', 'Kozon', '76042421194', '8:00', '15:00'),
+-- ('Alex', 'Schubert', '14121654439', '3:00', '13:00'),
+-- ('Maurycy', 'Szkaradek', '82112627751', '11:00', '21:00'),
+-- ('Tobiasz', 'Wota', '62120872392', '8:00', '17:00'),
+-- ('Ksawery', 'Tórz', '66050173897', '2:00', '12:00'),
+-- ('Sandra', 'Pilarek', '29092312288', '2:00', '8:00'),
+-- ('Aleks', 'Szram', '56033139231', '9:00', '19:00'),
+-- ('Arkadiusz', 'Drygała', '18020918285', '7:00', '13:00'),
+-- ('Marianna', 'Wojtczuk', '90030960159', '9:00', '17:00'),
+-- ('Krystian', 'Tarasek', '09030433013', '1:00', '9:00'),
+-- ('Ewelina', 'Nagel', '66012029758', '11:00', '17:00'),
+-- ('Agnieszka', 'Huber', '83060308367', '9:00', '19:00'),
+-- ('Gustaw', 'Policht', '88060750510', '9:00', '19:00'),
+-- ('Ignacy', 'Władyka', '23012955612', '3:00', '10:00'),
+-- ('Konstanty', 'Kolanko', '01041115289', '0:00', '10:00'),
+-- ('Juliusz', 'Rećko', '64011456766', '1:00', '9:00'),
+-- ('Grzegorz', 'Pietrasz', '61051369423', '5:00', '15:00'),
+-- ('Dominik', 'Burchardt', '71051893086', '8:00', '15:00'),
+-- ('Jan', 'Zyzik', '38030224017', '9:00', '17:00'),
+-- ('Roksana', 'Kiszczak', '59010475362', '6:00', '14:00'),
+-- ('Bruno', 'Prawdzik', '64052678679', '7:00', '17:00'),
+-- ('Marcelina', 'Dub', '14021291543', '5:00', '12:00'),
+-- ('Ewelina', 'Durlik', '11081347072', '2:00', '10:00'),
+-- ('Kazimierz', 'Okła', '29120886477', '2:00', '9:00'),
+-- ('Krystyna', 'Kazubek', '23060525919', '11:00', '19:00'),
+-- ('Albert', 'Buszko', '68110981330', '3:00', '9:00'),
+-- ('Paweł', 'Juszczuk', '99062212946', '13:00', '19:00'),
+-- ('Alex', 'Dziewior', '31070395295', '10:00', '16:00'),
+-- ('Julian', 'Strzała', '97012059553', '8:00', '17:00'),
+-- ('Krzysztof', 'Palej', '84052251058', '0:00', '8:00'),
+-- ('Marika', 'Księżak', '07092484026', '10:00', '20:00'),
+-- ('Malwina', 'Dub', '15102040441', '10:00', '18:00'),
+-- ('Anna Maria', 'Rabiej', '48041453353', '12:00', '22:00'),
+-- ('Hubert', 'Gołofit', '22100365177', '11:00', '21:00'),
+-- ('Albert', 'Serwach', '54012288985', '6:00', '13:00'),
+-- ('Ryszard', 'Ubysz', '07071029277', '12:00', '18:00'),
+-- ('Michał', 'Mydlarz', '65113092320', '10:00', '17:00'),
+-- ('Angelika', 'Godzwon', '07021331865', '0:00', '7:00'),
+-- ('Błażej', 'Nazarewicz', '55070526349', '10:00', '18:00'),
+-- ('Józef', 'Gasek', '30030146388', '10:00', '19:00'),
+-- ('Marianna', 'Cich', '56121636084', '1:00', '11:00'),
+-- ('Aniela', 'Lepak', '89022662427', '7:00', '15:00'),
+-- ('Liwia', 'Chalimoniuk', '21112700174', '13:00', '22:00'),
+-- ('Ernest', 'Rezmer', '01102702887', '13:00', '23:00'),
+-- ('Hubert', 'Filiks', '39013036751', '1:00', '7:00'),
+-- ('Sylwia', 'Dybiec', '72040476495', '10:00', '19:00'),
+-- ('Nikodem', 'Niedźwiadek', '81042846098', '9:00', '18:00'),
+-- ('Justyna', 'Bieszke', '21120843070', '2:00', '8:00'),
+-- ('Aleks', 'Granat', '18101235746', '11:00', '20:00'),
+-- ('Aurelia', 'Smektała', '52032576606', '8:00', '15:00'),
+-- ('Aniela', 'Wyskiel', '11062822509', '4:00', '12:00'),
+-- ('Marek', 'Mirończuk', '17062497141', '2:00', '8:00'),
+-- ('Marek', 'Wałaszek', '79012474305', '13:00', '20:00'),
+-- ('Kazimierz', 'Stebel', '08032056466', '13:00', '22:00'),
+-- ('Filip', 'Kołaczyk', '13030386196', '1:00', '7:00'),
+-- ('Angelika', 'Kulus', '91121205964', '7:00', '17:00'),
+-- ('Lidia', 'Golczyk', '50060567285', '10:00', '17:00'),
+-- ('Aleksander', 'Dzieża', '99120178012', '10:00', '19:00'),
+-- ('Kajetan', 'Dobrosz', '12011520080', '5:00', '14:00'),
+-- ('Mikołaj', 'Pyrkosz', '75022181567', '4:00', '12:00'),
+-- ('Karol', 'Cieciora', '65021926845', '2:00', '12:00'),
+-- ('Alan', 'Budych', '42022002392', '3:00', '9:00'),
+-- ('Wojciech', 'Glegoła', '03061707705', '1:00', '7:00'),
+-- ('Julita', 'Prażuch', '45041055264', '9:00', '18:00'),
+-- ('Nela', 'Kultys', '68020211840', '5:00', '11:00'),
+-- ('Aleksander', 'Poreda', '28112702793', '13:00', '22:00'),
+-- ('Sandra', 'Biernacik', '14051589351', '7:00', '15:00'),
+-- ('Blanka', 'Rusnak', '20033170433', '8:00', '18:00'),
+-- ('Marcelina', 'Tonder', '74010391155', '1:00', '8:00'),
+-- ('Krzysztof', 'Dycha', '24092125018', '8:00', '17:00'),
+-- ('Elżbieta', 'Koźlak', '49122042945', '4:00', '12:00'),
+-- ('Agnieszka', 'Porzucek', '87051373475', '12:00', '21:00'),
+-- ('Ryszard', 'Żołądź', '59050212194', '2:00', '9:00'),
+-- ('Andrzej', 'Jędral', '22030968059', '8:00', '15:00'),
+-- ('Artur', 'Chaba', '00052118445', '4:00', '14:00'),
+-- ('Kornelia', 'Szuta', '72082279588', '3:00', '9:00'),
+-- ('Albert', 'Roter', '72080465938', '9:00', '17:00'),
+-- ('Ewa', 'Frydrychowicz', '57041458183', '11:00', '17:00'),
+-- ('Natasza', 'Dzienis', '96041138796', '11:00', '21:00'),
+-- ('Julianna', 'Cieciora', '47070518039', '7:00', '13:00'),
+-- ('Jan', 'Jenek', '66080207739', '6:00', '13:00'),
+-- ('Oskar', 'Pyda', '36071297645', '11:00', '17:00'),
+-- ('Kornelia', 'Wośko', '34031812374', '5:00', '15:00'),
+-- ('Cyprian', 'Ernst', '40071564603', '6:00', '14:00'),
+-- ('Urszula', 'Giec', '29082928813', '4:00', '12:00'),
+-- ('Piotr', 'Siergiej', '58092691992', '2:00', '10:00'),
+-- ('Fryderyk', 'Hanc', '14090335094', '4:00', '14:00'),
+-- ('Piotr', 'Godyń', '96010650933', '7:00', '14:00'),
+-- ('Kazimierz', 'Durlej', '12052944791', '13:00', '21:00'),
+-- ('Wojciech', 'Balas', '07010877165', '2:00', '9:00'),
+-- ('Nela', 'Dudczak', '82072026447', '5:00', '14:00'),
+-- ('Rozalia', 'Kapałka', '03042945201', '4:00', '14:00'),
+-- ('Anastazja', 'Truchel', '03050925147', '3:00', '12:00'),
+-- ('Natasza', 'Kożuszek', '79041885011', '2:00', '11:00'),
+-- ('Kornel', 'Hamera', '82081887185', '10:00', '18:00'),
+-- ('Janina', 'Fiołka', '37070524008', '1:00', '8:00');
 
 INSERT INTO stanowiska (nazwa) VALUES
 ('zarzadca'),
@@ -671,7 +566,7 @@ INSERT INTO gatunki (nazwa, id_wybieg) VALUES
 ('żyrafa', 3),
 ('sokół', 3);
 
-INSERT INTO zwierzeta (gatunek, imie, poz_umiej) VALUES
+INSERT INTO zwierzeta (gatunek, imie, poziom_umiejetnosci) VALUES
 (32, 'Lauren', 2),
 (9, 'Tracey', 0),
 (64, 'Danielle', 9),
@@ -1273,7 +1168,7 @@ INSERT INTO zwierzeta (gatunek, imie, poz_umiej) VALUES
 (67, 'John', 8),
 (71, 'Michael', 3);
 
-INSERT INTO prac_stan (id_prac, id_stan) VALUES
+INSERT INTO pracownicy_stanowiska (id_prac, id_stan) VALUES
 (79, 3),
 (65, 4),
 (90, 3),
@@ -1399,7 +1294,7 @@ INSERT INTO prac_stan (id_prac, id_stan) VALUES
 (42, 3),
 (59, 4);
 
-INSERT INTO tren_gat (id_gat, id_prac) VALUES
+INSERT INTO trenerzy_gatunki (id_gat, id_prac) VALUES
 (1, 90),
 (2, 16),
 (3, 81),
@@ -1483,7 +1378,7 @@ INSERT INTO tren_gat (id_gat, id_prac) VALUES
 (81, 17),
 (82, 42);
 
-INSERT INTO opiek_gat (id_prac, id_gat) VALUES
+INSERT INTO opiekunowie_gatunki (id_prac, id_gat) VALUES
 (65, 1),
 (43, 2),
 (60, 3),
@@ -1567,7 +1462,7 @@ INSERT INTO opiek_gat (id_prac, id_gat) VALUES
 (62, 81),
 (29, 82);
 
-INSERT INTO sprzat_wybieg (id_prac, id_wybieg) VALUES
+INSERT INTO sprzatacze_wybiegi (id_prac, id_wybieg) VALUES
 (79, 1), (65, 2), (90, 3), (56, 4), (37, 5), (69, 6), (16, 7), (51, 8), (7, 9), (38, 10),
 (44, 11), (43, 12), (81, 13), (32, 14), (21, 15), (25, 16), (88, 17), (23, 18), (82, 19), (73, 20),
 (34, 21), (62, 22), (52, 23), (66, 24), (50, 25), (24, 26), (68, 27), (49, 28), (86, 29), (89, 30),
