@@ -1,34 +1,32 @@
 --========================================= ZWYKLE FUNKCJE =========================================--
 
 ------ sprawdzam czy pesel jest poprawny
-CREATE FUNCTION dobry_pesel(pesel CHAR(11))
-RETURNS BOOLEAN AS $$
+CREATE OR REPLACE FUNCTION dobry_pesel() RETURNS TRIGGER AS $$
 DECLARE
-    kontrolna INTEGER;
-    waga INTEGER[] := ARRAY[1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
-    suma INTEGER := 0;
+  tab NUMERIC[] := ARRAY[1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
+  suma NUMERIC := 0;
+  i NUMERIC;
 BEGIN
-    IF NOT pesel ~ '^[0-9]+$' THEN
-        RETURN FALSE;
-    END IF;
+  IF LENGTH(NEW.pesel) != 11 THEN
+    RAISE EXCEPTION 'Niepoprawny PESEL';
+  END IF;
 
-    IF LENGTH(pesel) != 11 THEN
-        RETURN FALSE;
-    END IF;
+  FOR i IN 1..10 LOOP
+    suma := suma + tab[i] * CAST(SUBSTRING(NEW.pesel, i, 1) AS NUMERIC);
+  END LOOP;
 
-    FOR i IN 1..10 LOOP
-        suma := suma + waga[i] * CAST(SUBSTRING(pesel FROM i FOR 1) AS INTEGER);
-    END LOOP;
+  suma := 10 - (suma % 10);
+  IF suma = 10 THEN
+    suma := 0;
+  END IF;
 
-    kontrolna := (10 - (suma % 10)) % 10;
+  IF suma != CAST(SUBSTRING(NEW.pesel, 11, 1) AS NUMERIC) THEN
+    RAISE EXCEPTION 'Niepoprawny PESEL';
+  END IF;
 
-    IF kontrolna != CAST(SUBSTRING(pesel FROM 11 FOR 1) AS INTEGER) THEN
-        RETURN FALSE;
-    ELSE
-        RETURN TRUE;
-    END IF;
+  RETURN NEW;
 END;
-$$ LANGUAGE PLPGSQL;
+$$ LANGUAGE plpgsql;
 -------------------------------------------------------------------------------------
 
 
@@ -47,6 +45,11 @@ CREATE TABLE pracownicy (
     godz_od TIME DEFAULT '8:00'::time NOT NULL ,        --nie ograniczamy godzin pracy bo mozna pracowac w nocy
     godz_do TIME DEFAULT '15:00'::time NOT NULL
 );
+
+CREATE TRIGGER dobry_pesel
+BEFORE INSERT OR UPDATE ON pracownicy
+FOR EACH ROW EXECUTE PROCEDURE dobry_pesel();
+
 INSERT INTO pracownicy (id, imie, nazwisko, pesel, godz_od, godz_do) VALUES
 (1, 'Józef', 'Sanetra', '85090127679', '03:31:33'::time, '10:10:25'::time),
 (2, 'Blanka', 'Kijas', '25011909517', '03:43:06'::time, '11:47:56'::time),
