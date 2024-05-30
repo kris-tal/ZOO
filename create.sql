@@ -19,35 +19,6 @@ DROP VIEW IF EXISTS plan_godziny_otwarcia CASCADE;
 
 --========================================= ZWYKLE FUNKCJE =========================================--
 
------- sprawdzam czy pesel jest poprawny
-CREATE OR REPLACE FUNCTION dobry_pesel() RETURNS TRIGGER AS $$
-DECLARE
-  tab NUMERIC[] := ARRAY[1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
-  suma NUMERIC := 0;
-  i NUMERIC;
-BEGIN
-  IF LENGTH(NEW.pesel) != 11 THEN
-    RAISE EXCEPTION 'Niepoprawny PESEL';
-  END IF;
-
-  FOR i IN 1..10 LOOP
-    suma := suma + tab[i] * CAST(SUBSTRING(NEW.pesel, i, 1) AS NUMERIC);
-  END LOOP;
-
-  suma := 10 - (suma % 10);
-  IF suma = 10 THEN
-    suma := 0;
-  END IF;
-
-  IF suma != CAST(SUBSTRING(NEW.pesel, 11, 1) AS NUMERIC) THEN
-    RAISE EXCEPTION 'Niepoprawny PESEL';
-  END IF;
-
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
--------------------------------------------------------------------------------------
-
 
 --========================================= RELACJE =========================================--
 
@@ -62,14 +33,10 @@ CREATE TABLE pracownicy (
     nazwisko VARCHAR(40) NOT NULL,
     pesel CHAR(11), CHECK(dobry_pesel(pesel)),
     haslo INTEGER, --to bedzie hash hasla ale hashowanie juz chyba w javie
-    godzina_od TIME DEFAULT '8:00'::time NOT NULL ,        --nie ograniczamy godzinain pracy bo mozna pracowac w nocy
+    godzina_od TIME DEFAULT '8:00'::time NOT NULL ,        --nie to zostanie usuniete, zrobimy grafik
     godzina_do TIME DEFAULT '15:00'::time NOT NULL,
     UNIQUE(imie, nazwisko, pesel)
 );
-
-CREATE TRIGGER dobry_pesel
-BEFORE INSERT OR UPDATE ON pracownicy
-FOR EACH ROW EXECUTE PROCEDURE dobry_pesel();
 
 CREATE TABLE stanowiska (
     id SERIAL PRIMARY KEY,
@@ -124,10 +91,19 @@ CREATE TABLE sprzatacze_wybiegi (
     PRIMARY KEY(id_pracownika, id_wybiegu)
 );
 
-CREATE TABLE nieobecnosci (
+CREATE TABLE nieobecnosci_pracownikow (
     id SERIAL PRIMARY KEY,
     id_pracownika INTEGER REFERENCES pracownicy(id) NOT NULL,
-    dzien DATE NOT NULL,
+    data_od DATE NOT NULL,
+    data_do DATE NOT NULL CHECK (data_do >= data_od ),
+    powod VARCHAR(200)
+);
+
+CREATE TABLE niedyspozycja_zwierzat (
+    id SERIAL PRIMARY KEY,
+    id_zwierzecia INTEGER REFERENCES zwierzeta(id) NOT NULL,
+    data_od DATE NOT NULL,
+    data_do DATE NOT NULL CHECK (data_do >= data_od ),
     powod VARCHAR(200)
 );
 

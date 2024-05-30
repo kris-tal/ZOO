@@ -5,12 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a8a9638b-35cd-4493-8e10-7bda6c3f8306" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a2fd0103-14a6-4223-8b6b-c950da082b89.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a2fd0103-14a6-4223-8b6b-c950da082b89/storage_v2/_src_/database/kris.0VwyAA/schema/zadanief.gPO6PA.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a2fd0103-14a6-4223-8b6b-c950da082b89/storage_v2/_src_/database/kris.0VwyAA/schema/zadanief.gPO6PA.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a2fd0103-14a6-4223-8b6b-c950da082b89/storage_v2/_src_/database/kris.0VwyAA/schema/zoo.2tcBAA.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a2fd0103-14a6-4223-8b6b-c950da082b89/storage_v2/_src_/database/kris.0VwyAA/schema/zoo.2tcBAA.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/create.sql" beforeDir="false" afterPath="$PROJECT_DIR$/create.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/historic_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/historic_data.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/triggers.sql" beforeDir="false" afterPath="$PROJECT_DIR$/triggers.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,7 +21,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "git-widget-placeholder": "korekty-kasi"
+    "git-widget-placeholder": "main"
   },
   "keyToStringList": {
     "DatabaseDriversLRU": [
