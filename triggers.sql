@@ -5,6 +5,10 @@ DECLARE
   suma NUMERIC := 0;
   i NUMERIC;
 BEGIN
+    IF NEW.pesele IS NULL THEN
+        RETURN NEW;
+    END IF;
+    
   IF LENGTH(NEW.pesel) != 11 THEN
     RAISE EXCEPTION 'Niepoprawny PESEL';
   END IF;
