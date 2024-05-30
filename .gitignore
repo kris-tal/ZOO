@@ -1,9 +1,6 @@
 # JetBrains IDE
 .idea/
 
-# SQL files
-*.sql
-
 # Log files
 *.log
 
