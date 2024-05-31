@@ -163,6 +163,7 @@ BEGIN
             DELETE FROM plan_dnia WHERE id = plan.id;
         END IF;
     END LOOP;
+    RETURN NEW;
 END;
 $historia_planu$ LANGUAGE plpgsql;
 
