@@ -56,15 +56,15 @@ CREATE TRIGGER change_zwierzeta
     FOR EACH ROW EXECUTE FUNCTION update_licznosc_gatunku();
 -------------------------------------------------------------------------------------
 ------ sprawdzam czy popis nie jest poza czasem otwarcia zoo
-CREATE FUNCTION check_godziny_otwarcia() RETURNS TRIGGER
+CREATE OR REPLACE FUNCTION check_godziny_otwarcia() RETURNS TRIGGER
 AS $$
 BEGIN
     IF NEW.id_popisu IS NULL THEN RETURN NEW; END IF;        --dla srzatania i karmienia nie sprawdzamy
-    IF NEW.godzina_od < (SELECT otwarcie FROM godziny_otwarcia LIMIT 1) THEN
+    IF NEW.godzina_od < (SELECT otwarcie FROM godziny_otwarcia WHERE extract(isodow from NEW.data) = dzien_tygodnia LIMIT 1) THEN
         RAISE EXCEPTION 'Godzina rozpoczęcia musi być po godzinie otwarcia';
     END IF;
 
-    IF NEW.godzina_do > (SELECT zamkniecie FROM godziny_otwarcia LIMIT 1) THEN
+    IF NEW.godzina_do > (SELECT zamkniecie FROM godziny_otwarcia WHERE extract(isodow from NEW.data) = dzien_tygodnia LIMIT 1) THEN
         RAISE EXCEPTION 'Godzina zakończenia musi być przed godziną zamknięcia';
     END IF;
 
