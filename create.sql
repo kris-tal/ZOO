@@ -24,10 +24,9 @@ DROP VIEW IF EXISTS plan_godziny_otwarcia CASCADE;
 --========================================= RELACJE =========================================--
 
 CREATE TABLE godziny_otwarcia (
-    dzien_tygodnia INTEGER CHECK(dzien_tygodnia >= 1 AND dzien_tygodnia <= 7) NOT NULL,
-    otwarcie TIME PRIMARY KEY,
-    zamkniecie TIME CHECK(zamkniecie > otwarcie) NOT NULL,
-    UNIQUE(dzien_tygodnia)
+    dzien_tygodnia INTEGER PRIMARY KEY CHECK(dzien_tygodnia >= 1 AND dzien_tygodnia <= 7),
+    otwarcie TIME NOT NULL,
+    zamkniecie TIME CHECK(zamkniecie > otwarcie) NOT NULL
 );
 
 CREATE TABLE pracownicy (
