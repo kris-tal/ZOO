@@ -85,9 +85,9 @@ AS $$
 BEGIN
     IF EXISTS (
         SELECT true
-        FROM plan_tygodnia
+        FROM plan_dnia
         WHERE id_popisu IS NOT NULL
-        AND ((godzina_od < NEW.otwarcie) OR (godzina_do > NEW.zamkniecie))
+        AND ((godzina_od < NEW.otwarcie) OR (godzina_do > NEW.zamkniecie)) AND NEW.dzien_tygodnia = extract(isodow from plan_dnia.data)
     ) THEN
         RAISE EXCEPTION 'Nowa godzinaina rozpoczęcia koliduje z istniejącymi popisami';
     END IF;
