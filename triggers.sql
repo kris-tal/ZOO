@@ -101,28 +101,28 @@ CREATE TRIGGER aktualizacja_godziny_otwarcia
     FOR EACH ROW EXECUTE FUNCTION check_godzina_popisow();
 -------------------------------------------------------------------------------------
 ------ pilnuje czy jest tylko jedna krotka w relacji godziny_otwarcia
-CREATE OR REPLACE FUNCTION jeden() RETURNS TRIGGER
-AS $$
-DECLARE
-    licznik INTEGER;
-BEGIN
-    SELECT COUNT(*) INTO licznik FROM godziny_otwarcia;
+-- CREATE OR REPLACE FUNCTION jeden() RETURNS TRIGGER
+-- AS $$
+-- DECLARE
+--     licznik INTEGER;
+-- BEGIN
+--     SELECT COUNT(*) INTO licznik FROM godziny_otwarcia;
 
-    IF TG_OP = 'INSERT' AND licznik = 1 THEN
-        RAISE EXCEPTION 'Nie można dodać więcej niż jednych godzin otwarcia. Możesz je edytować';
-    ELSEIF TG_OP = 'DELETE' THEN
-        RAISE EXCEPTION 'Nie można usunąć jedynego wiersza w tabeli';
-    END IF;
+--     IF TG_OP = 'INSERT' AND licznik = 1 THEN
+--         RAISE EXCEPTION 'Nie można dodać więcej niż jednych godzin otwarcia. Możesz je edytować';
+--     ELSEIF TG_OP = 'DELETE' THEN
+--         RAISE EXCEPTION 'Nie można usunąć jedynego wiersza w tabeli';
+--     END IF;
 
-    IF TG_OP = 'INSERT' THEN RETURN NEW;
-    ELSE RETURN OLD;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
+--     IF TG_OP = 'INSERT' THEN RETURN NEW;
+--     ELSE RETURN OLD;
+--     END IF;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER pojedynczy_wiersz
-    BEFORE INSERT OR DELETE ON godziny_otwarcia
-    FOR EACH ROW EXECUTE FUNCTION jeden();
+-- CREATE TRIGGER pojedynczy_wiersz
+--     BEFORE INSERT OR DELETE ON godziny_otwarcia
+--     FOR EACH ROW EXECUTE FUNCTION jeden();
 
 -------------------------------------------------------------------------------------
 =================================== HISTORIC TRIGGERS =========================================
