@@ -34,7 +34,7 @@ CREATE TABLE pracownicy (
     id SERIAL PRIMARY KEY,
     imie VARCHAR(40) NOT NULL,
     nazwisko VARCHAR(40) NOT NULL,
-    pesel CHAR(11), CHECK(dobry_pesel(pesel)),
+    pesel CHAR(11),
     haslo INTEGER, --to bedzie hash hasla ale hashowanie juz chyba w javie
     UNIQUE(imie, nazwisko, pesel)
 );
@@ -152,7 +152,6 @@ CREATE TABLE historia_plan_dnia ( -- tu nie robimy checkow bo nie da sie inserto
 -- po id wyszukuje czy jest w planie czy w historii
 
 CREATE RULE historia_insert AS ON INSERT TO historia_plan_dnia DO INSTEAD NOTHING;
-CREATE RULE historia_insert AS ON UPDATE TO historia_plan_dnia DO INSTEAD NOTHING;
 
 CREATE OR REPLACE FUNCTION historia_planu()
 RETURNS TRIGGER AS $historia_planu$
