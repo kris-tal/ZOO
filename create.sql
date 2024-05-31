@@ -148,10 +148,9 @@ CREATE TABLE historia_plan_dnia ( -- tu nie robimy checkow bo nie da sie inserto
     id_popisu INTEGER REFERENCES popisy(id)
 );
 
--- tu nic nie mona dodawac
--- po id wyszukuje czy jest w planie czy w historii
+-- tu nic nie mona dodawac ale regula nie zadziala
+--CREATE RULE historia_insert AS ON INSERT TO historia_plan_dnia DO INSTEAD NOTHING;
 
-CREATE RULE historia_insert AS ON INSERT TO historia_plan_dnia DO INSTEAD NOTHING;
 
 CREATE OR REPLACE FUNCTION historia_planu()
 RETURNS TRIGGER AS $historia_planu$
