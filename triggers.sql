@@ -73,7 +73,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER akt_popisow
-    BEFORE INSERT OR UPDATE ON plan_tygodnia
+    BEFORE INSERT OR UPDATE ON plan_dnia
     FOR EACH ROW EXECUTE FUNCTION check_godziny_otwarcia();
 -------------------------------------------------------------------------------------
 
