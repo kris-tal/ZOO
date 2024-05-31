@@ -84,18 +84,6 @@ CREATE TABLE pracownicy_stanowiska (
     PRIMARY KEY(id_pracownika, id_stanowiska)
 );
 
-CREATE OR REPLACE FUNCTION check_position() RETURNS TRIGGER AS $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pracownicy_stanowiska WHERE id_pracownika = NEW.id) THEN
-        RAISE EXCEPTION 'nie ma stanowiska';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER pracownicy_position_trigger
-AFTER INSERT OR UPDATE ON pracownicy
-FOR EACH ROW EXECUTE PROCEDURE check_position();
 
 CREATE TABLE trenerzy_gatunki (
     id_pracownika INTEGER REFERENCES pracownicy(id),
