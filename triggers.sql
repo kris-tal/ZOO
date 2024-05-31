@@ -5,7 +5,7 @@ DECLARE
   suma NUMERIC := 0;
   i NUMERIC;
 BEGIN
-    IF NEW.pesele IS NULL THEN
+    IF NEW.pesel IS NULL THEN
         RETURN NEW;
     END IF;
     
