@@ -225,7 +225,7 @@ INSERT INTO wybiegi (strefa) VALUES
 (6),
 (7);
 
-INSERT INTO gatunki (nazwa, id_wybieg) VALUES
+INSERT INTO gatunki (nazwa, id_wybiegu) VALUES
 ('żbik', 57),
 ('szczur', 23),
 ('jeleń', 4),
