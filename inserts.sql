@@ -1,12 +1,18 @@
-INSERT INTO godziny_otwarcia (otwarcie, zamkniecie) VALUES
-('8:00'::time, '19:00'::time);
+INSERT INTO godziny_otwarcia (dzien_tygodnia, otwarcie, zamkniecie) VALUES
+(1, '10:00'::time, '19:00'::time),
+(2, '10:00'::time, '19:00'::time),
+(3, '10:00'::time, '19:00'::time),
+(4, '10:00'::time, '19:00'::time),
+(5, '10:00'::time, '21:00'::time),
+(6, '8:00'::time, '21:00'::time),
+(7, '8:00'::time, '21:00'::time);
 
 -- hasla przeniesione do pracownikow wiec trzeba wygenerowac nowych
--- INSERT INTO pracownicy (imie, nazwisko, pesel, godz_od, godz_do) VALUES
--- ('Józef', 'Sanetra', '85090127679', '3:00', '10:00'),
--- ('Blanka', 'Kijas', '25011909517', '3:00', '11:00'),
--- ('Dagmara', 'Wolff', '03073139598', '11:00', '18:00'),
--- ('Elżbieta', 'Kuszyk', '20040926328', '13:00', '19:00'),
+INSERT INTO pracownicy (imie, nazwisko, pesel, haslo) VALUES
+('Józef', 'Sanetra', '85090127679', 0),
+('Blanka', 'Kijas', '25011909517', 0),
+('Dagmara', 'Wolff', '03073139598', 0),
+('Elżbieta', 'Kuszyk', '20040926328', 0);
 -- ('Anastazja', 'Kozon', '76042421194', '8:00', '15:00'),
 -- ('Alex', 'Schubert', '14121654439', '3:00', '13:00'),
 -- ('Maurycy', 'Szkaradek', '82112627751', '11:00', '21:00'),
