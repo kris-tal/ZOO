@@ -100,6 +100,55 @@ CREATE TRIGGER aktualizacja_godziny_otwarcia
     BEFORE INSERT OR UPDATE ON godziny_otwarcia
     FOR EACH ROW EXECUTE FUNCTION check_godzina_popisow();
 -------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION check_plan_dnia()
+RETURNS TRIGGER AS $$
+DECLARE
+    dodawany_id INTEGER;
+BEGIN
+    IF NEW.id_sprzatacza IS NOT NULL THEN dodawany_id = NEW.id_sprzatacza;
+    ELSIF NEW.id_karmienia IS NOT NULL THEN dodawany_id = NEW.id_karmienia;
+    ELSIF NEW.id_popisu IS NOT NULL THEN dodawany_id = NEW.id_popisu;
+    END IF;
+
+    -- nieobecnosci
+    IF EXISTS(
+       SELECT true FROM nieobecnosci_pracownikow
+       WHERE NEW.data >= data_od AND NEW.data <= data_do AND id_pracownika = dodawany_id
+    ) THEN
+       RETURN NULL;
+    END IF;
+
+    -- godziny pracy
+    IF EXISTS(
+        SELECT true FROM pracownicy_godziny_pracy
+        WHERE id_pracownika = dodawany_id AND (NEW.godzina_od < godzina_od OR NEW.godzina_do > godzina_do)
+    ) THEN
+        RETURN NULL;
+    END IF;
+
+    -- pracownik dwie rzeczy naraz
+    IF EXISTS(
+        SELECT true FROM plan_dnia
+        WHERE (id_popisu = dodawany_id OR id_karmienia = dodawany_id OR id_sprzatacza = dodawany_id)
+        AND data = NEW.data
+        AND (godzina_od <= NEW.godzina_od AND NEW.godzina_od < godzina_do
+                 OR godzina_od < NEW.godzina_do AND NEW.godzina_do <= godzina_do)
+    ) THEN
+        RETURN NULL;
+    END IF;
+
+    RETURN NEW;
+
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_plan_dnia
+    BEFORE INSERT OR UPDATE ON plan_dnia
+    FOR EACH ROW EXECUTE FUNCTION check_plan_dnia();
+
+-- TODO zwierze dwie rzeczy na raz (czy wystarczajaco zwierzat o poziomie)
+-- TODO niedyspozycyjnosc zwierzat
+-------------------------------------------------------------------------------------
 ------ pilnuje czy jest tylko jedna krotka w relacji godziny_otwarcia
 -- CREATE OR REPLACE FUNCTION jeden() RETURNS TRIGGER
 -- AS $$
