@@ -138,13 +138,19 @@ BEGIN
     END IF;
 
     RETURN NEW;
-
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER check_plan_dnia
     BEFORE INSERT OR UPDATE ON plan_dnia
     FOR EACH ROW EXECUTE FUNCTION check_plan_dnia();
+
+CREATE OR REPLACE FUNCTION check_popisy()
+RETURNS TRIGGER AS $check_popisy$
+BEGIN
+
+END;
+$check_popisy$ LANGUAGE plpgsql;
 
 -- TODO zwierze dwie rzeczy na raz (czy wystarczajaco zwierzat o poziomie)
 -- TODO niedyspozycyjnosc zwierzat
