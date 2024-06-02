@@ -184,7 +184,7 @@ CREATE TRIGGER check_popisy
 --     FOR EACH ROW EXECUTE FUNCTION jeden();
 
 -------------------------------------------------------------------------------------
-=================================== HISTORIC TRIGGERS =========================================
+--=================================== HISTORIC TRIGGERS =========================================
 
 CREATE OR REPLACE FUNCTION dodaj_do_historii_zwierzat() RETURNS TRIGGER AS $$
 BEGIN
