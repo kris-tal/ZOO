@@ -148,9 +148,13 @@ CREATE TRIGGER check_plan_dnia
 CREATE OR REPLACE FUNCTION check_popisy()
 RETURNS TRIGGER AS $check_popisy$
 BEGIN
-
+    RETURN NEW;
 END;
 $check_popisy$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_popisy
+    BEFORE INSERT OR UPDATE ON plan_dnia
+    FOR EACH ROW EXECUTE FUNCTION check_popisy();
 
 -- TODO zwierze dwie rzeczy na raz (czy wystarczajaco zwierzat o poziomie)
 -- TODO niedyspozycyjnosc zwierzat
