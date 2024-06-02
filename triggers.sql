@@ -100,6 +100,7 @@ CREATE TRIGGER aktualizacja_godziny_otwarcia
     BEFORE INSERT OR UPDATE ON godziny_otwarcia
     FOR EACH ROW EXECUTE FUNCTION check_godzina_popisow();
 -------------------------------------------------------------------------------------
+-- do poprawy id_popisu
 CREATE OR REPLACE FUNCTION check_plan_dnia()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -147,7 +148,28 @@ CREATE TRIGGER check_plan_dnia
 
 CREATE OR REPLACE FUNCTION check_popisy()
 RETURNS TRIGGER AS $check_popisy$
+DECLARE
+    popis RECORD;
+    dostepne_zwierzeta INTEGER;
+    niedostepne_zwierzeta INTEGER;
 BEGIN
+    IF NEW.id_popisu IS NULL THEN RETURN NEW; END IF;
+
+    SELECT * INTO popis FROM popisy
+    WHERE id = NEW.id_popisu;
+
+    SELECT COUNT(*) INTO dostepne_zwierzeta FROM gatunki JOIN zwierzeta ON gatunek = gatunki.id
+    WHERE poziom_umiejetnosci >= popis.min_poziom_umiejetnosci AND gatunek = popis.gatunek;
+
+    SELECT SUM(min_ilosc) INTO niedostepne_zwierzeta FROM plan_dnia JOIN popisy ON id_popisu = popisy.id
+    WHERE id_popisu = NEW.id_popisu
+    AND (godzina_od < NEW.godzina_do AND NEW.godzina_do <= godzina_do
+        OR godzina_od <= NEW.godzina_od AND NEW.godzina_od < godzina_do);
+
+    IF dostepne_zwierzeta - niedostepne_zwierzeta < popis.min_ilosc THEN
+        RETURN NULL;
+    END IF;
+
     RETURN NEW;
 END;
 $check_popisy$ LANGUAGE plpgsql;
@@ -155,9 +177,6 @@ $check_popisy$ LANGUAGE plpgsql;
 CREATE TRIGGER check_popisy
     BEFORE INSERT OR UPDATE ON plan_dnia
     FOR EACH ROW EXECUTE FUNCTION check_popisy();
-
--- TODO zwierze dwie rzeczy na raz (czy wystarczajaco zwierzat o poziomie)
--- TODO niedyspozycyjnosc zwierzat
 -------------------------------------------------------------------------------------
 ------ pilnuje czy jest tylko jedna krotka w relacji godziny_otwarcia
 -- CREATE OR REPLACE FUNCTION jeden() RETURNS TRIGGER
