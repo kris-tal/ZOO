@@ -100,7 +100,6 @@ CREATE TRIGGER aktualizacja_godziny_otwarcia
     BEFORE INSERT OR UPDATE ON godziny_otwarcia
     FOR EACH ROW EXECUTE FUNCTION check_godzina_popisow();
 -------------------------------------------------------------------------------------
--- do poprawy id_popisu
 CREATE OR REPLACE FUNCTION check_plan_dnia()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -139,12 +138,14 @@ BEGIN
     END IF;
 
     RETURN NEW;
+
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER check_plan_dnia
     BEFORE INSERT OR UPDATE ON plan_dnia
     FOR EACH ROW EXECUTE FUNCTION check_plan_dnia();
+
 
 CREATE OR REPLACE FUNCTION check_popisy()
 RETURNS TRIGGER AS $check_popisy$
@@ -178,7 +179,7 @@ CREATE TRIGGER check_popisy
     BEFORE INSERT OR UPDATE ON plan_dnia
     FOR EACH ROW EXECUTE FUNCTION check_popisy();
 -------------------------------------------------------------------------------------
---=================================== HISTORIC TRIGGERS =========================================
+=================================== HISTORIC TRIGGERS =========================================
 
 CREATE OR REPLACE FUNCTION dodaj_do_historii_zwierzat() RETURNS TRIGGER AS $$
 BEGIN
