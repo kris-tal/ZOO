@@ -146,33 +146,38 @@ CREATE TRIGGER check_plan_dnia
     BEFORE INSERT OR UPDATE ON plan_dnia
     FOR EACH ROW EXECUTE FUNCTION check_plan_dnia();
 
--- TODO zwierze dwie rzeczy na raz (czy wystarczajaco zwierzat o poziomie)
--- TODO niedyspozycyjnosc zwierzat
--------------------------------------------------------------------------------------
------- pilnuje czy jest tylko jedna krotka w relacji godziny_otwarcia
--- CREATE OR REPLACE FUNCTION jeden() RETURNS TRIGGER
--- AS $$
--- DECLARE
---     licznik INTEGER;
--- BEGIN
---     SELECT COUNT(*) INTO licznik FROM godziny_otwarcia;
 
---     IF TG_OP = 'INSERT' AND licznik = 1 THEN
---         RAISE EXCEPTION 'Nie można dodać więcej niż jednych godzin otwarcia. Możesz je edytować';
---     ELSEIF TG_OP = 'DELETE' THEN
---         RAISE EXCEPTION 'Nie można usunąć jedynego wiersza w tabeli';
---     END IF;
+CREATE OR REPLACE FUNCTION check_popisy()
+RETURNS TRIGGER AS $check_popisy$
+DECLARE
+    popis RECORD;
+    dostepne_zwierzeta INTEGER;
+    niedostepne_zwierzeta INTEGER;
+BEGIN
+    IF NEW.id_popisu IS NULL THEN RETURN NEW; END IF;
 
---     IF TG_OP = 'INSERT' THEN RETURN NEW;
---     ELSE RETURN OLD;
---     END IF;
--- END;
--- $$ LANGUAGE plpgsql;
+    SELECT * INTO popis FROM popisy
+    WHERE id = NEW.id_popisu;
 
--- CREATE TRIGGER pojedynczy_wiersz
---     BEFORE INSERT OR DELETE ON godziny_otwarcia
---     FOR EACH ROW EXECUTE FUNCTION jeden();
+    SELECT COUNT(*) INTO dostepne_zwierzeta FROM gatunki JOIN zwierzeta ON gatunek = gatunki.id
+    WHERE poziom_umiejetnosci >= popis.min_poziom_umiejetnosci AND gatunek = popis.gatunek;
 
+    SELECT SUM(min_ilosc) INTO niedostepne_zwierzeta FROM plan_dnia JOIN popisy ON id_popisu = popisy.id
+    WHERE id_popisu = NEW.id_popisu
+    AND (godzina_od < NEW.godzina_do AND NEW.godzina_do <= godzina_do
+        OR godzina_od <= NEW.godzina_od AND NEW.godzina_od < godzina_do);
+
+    IF dostepne_zwierzeta - niedostepne_zwierzeta < popis.min_ilosc THEN
+        RETURN NULL;
+    END IF;
+
+    RETURN NEW;
+END;
+$check_popisy$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_popisy
+    BEFORE INSERT OR UPDATE ON plan_dnia
+    FOR EACH ROW EXECUTE FUNCTION check_popisy();
 -------------------------------------------------------------------------------------
 =================================== HISTORIC TRIGGERS =========================================
 
