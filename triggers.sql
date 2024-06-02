@@ -179,7 +179,7 @@ CREATE TRIGGER check_popisy
     BEFORE INSERT OR UPDATE ON plan_dnia
     FOR EACH ROW EXECUTE FUNCTION check_popisy();
 -------------------------------------------------------------------------------------
-=================================== HISTORIC TRIGGERS =========================================
+--=================================== HISTORIC TRIGGERS =========================================
 
 CREATE OR REPLACE FUNCTION dodaj_do_historii_zwierzat() RETURNS TRIGGER AS $$
 BEGIN
