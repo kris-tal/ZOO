@@ -12,7 +12,7 @@ def generuj_trenerzy_gatunki(plik_pracownik_stanowisko, liczba_gatunkow):
                 if id_stanowiska == '3':
                     trenerzy.append(id_pracownika)
 
-    print("INSERT INTO trenerzy_gatunki (id_trenera, id_gatunku) VALUES")
+    print("INSERT INTO trenerzy_gatunki (id_pracownika, id_gatunku) VALUES")
     for i, id_trenera in enumerate(trenerzy):
         id_gatunku = random.randint(1, liczba_gatunkow)
         if i != len(trenerzy) - 1:

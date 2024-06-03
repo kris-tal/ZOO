@@ -254,4 +254,4 @@ INSERT INTO opiekunowie_gatunki (id_pracownika, id_gatunku) VALUES
 (983, 253),
 (985, 254),
 (986, 255),
-(997, 256),
+(997, 256);

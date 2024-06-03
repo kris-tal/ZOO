@@ -1,4 +1,4 @@
-INSERT INTO trenerzy_gatunki (id_trenera, id_gatunku) VALUES
+INSERT INTO trenerzy_gatunki (id_pracownika, id_gatunku) VALUES
 (4, 13),
 (5, 1),
 (8, 81),
