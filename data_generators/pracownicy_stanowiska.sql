@@ -1008,5 +1008,4 @@ INSERT INTO pracownicy_stanowiska (id_pracownika, id_stanowiska) VALUES
 (997, 2),
 (998, 2),
 (999, 2),
-(1000, 2),
-(1001, 2);
+(1000, 2);
