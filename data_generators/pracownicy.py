@@ -19,6 +19,7 @@ def generate_pesel():
 def generate_employee_tuples(n):
     print("INSERT INTO pracownicy (imie, nazwisko, pesel, haslo) VALUES")
     id_counter = 1
+    employee_tuples = []
     with open('passwords.txt', 'w') as f:
         for _ in range(n):
             imie = fake.first_name()
@@ -27,9 +28,13 @@ def generate_employee_tuples(n):
             password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(8)) + random.choice('.!?')
             f.write(f'ID: {id_counter}, Password: {password}\n')
             haslo = int(hashlib.sha256(password.encode('utf-8')).hexdigest(), 16) % 10**8
-            yield (imie, nazwisko, pesel, haslo)
+            employee_tuples.append((imie, nazwisko, pesel, haslo))
             id_counter += 1
 
+    for i, employee_tuple in enumerate(employee_tuples):
+        if i != len(employee_tuples) - 1:
+            print(f"{employee_tuple},")
+        else:
+            print(f"{employee_tuple};")
 
-for employee in generate_employee_tuples(1000):
-    print(employee)
+generate_employee_tuples(1000)
