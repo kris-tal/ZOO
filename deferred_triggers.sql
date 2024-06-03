@@ -59,23 +59,23 @@ AFTER INSERT OR UPDATE ON wybiegi
 DEFERRABLE INITIALLY DEFERRED
 FOR EACH ROW EXECUTE PROCEDURE check_sprzatacz();
 
-CREATE OR REPLACE FUNCTION check_sprzatacz() RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW.nazwa = 'sprzatacz' AND NOT EXISTS (SELECT 1 FROM sprzatacze_wybiegi WHERE id_pracownika = NEW.id_pracownika) THEN
-        RAISE EXCEPTION 'kazdy sprzatacz musi miec wybieg';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE CONSTRAINT TRIGGER cleaner_enclosure_trigger
-AFTER INSERT OR UPDATE ON pracownicy_stanowiska
-DEFERRABLE INITIALLY DEFERRED
-FOR EACH ROW EXECUTE PROCEDURE check_cleaner_enclosure();
+-- CREATE OR REPLACE FUNCTION check_sprzatacz() RETURNS TRIGGER AS $$
+-- BEGIN
+--     IF NEW.nazwa = 'sprzatacz' AND NOT EXISTS (SELECT 1 FROM sprzatacze_wybiegi WHERE id_pracownika = NEW.id_pracownika) THEN
+--         RAISE EXCEPTION 'kazdy sprzatacz musi miec wybieg';
+--     END IF;
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+--
+-- CREATE CONSTRAINT TRIGGER cleaner_enclosure_trigger
+-- AFTER INSERT OR UPDATE ON pracownicy_stanowiska
+-- DEFERRABLE INITIALLY DEFERRED
+-- FOR EACH ROW EXECUTE PROCEDURE check_cleaner_enclosure();
 
 CREATE OR REPLACE FUNCTION check_trener_gatunek() RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.nazwa = 'trener' AND NOT EXISTS (SELECT 1 FROM trenerzy_gatunki WHERE id_pracownika = NEW.id_pracownika) THEN
+    IF NEW.id_stanowiska = 3 AND NOT EXISTS (SELECT 1 FROM trenerzy_gatunki WHERE id_pracownika = NEW.id_pracownika) THEN
         RAISE EXCEPTION 'kazdy trener musi miec gatunek';
     END IF;
     RETURN NEW;
