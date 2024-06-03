@@ -1,10 +1,10 @@
 import random
 import re
 
-def generuj_opiekunowie_gatunki(plik_pracownik_stanowisko, liczba_gatunkow):
+def generuj_opiekunowie_gatunki(plik, liczba_gatunkow):
     opiekunowie = []
 
-    with open(plik_pracownik_stanowisko, 'r') as f:
+    with open(plik, 'r') as f:
         for line in f:
             match = re.search(r'\((\d+), (\d+)\)', line)
             if match:

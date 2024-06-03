@@ -20,4 +20,4 @@ def generuj_trenerzy_gatunki(plik_pracownik_stanowisko, liczba_gatunkow):
         else:
             print(f"({id_trenera}, {id_gatunku});")
 
-generuj_trenerzy_gatunki('pracownik-stanowisko.sql', 100)
+generuj_trenerzy_gatunki('pracownik_stanowisko.sql', 100)
