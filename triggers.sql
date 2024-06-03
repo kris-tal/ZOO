@@ -100,26 +100,6 @@ CREATE TRIGGER aktualizacja_godziny_otwarcia
     BEFORE INSERT OR UPDATE ON godziny_otwarcia
     FOR EACH ROW EXECUTE FUNCTION check_godzina_popisow();
 -------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION historia_planu()
-RETURNS TRIGGER AS $historia_planu$
-DECLARE
-    plan RECORD;
-BEGIN
-    FOR plan IN SELECT * FROM plan_dnia LOOP
-        IF plan.data < CURRENT_DATE THEN
-            INSERT INTO historia_plan_dnia VALUES
-            (plan.id, plan.data, plan.godzina_od, plan.godzina_do, plan.id_sprzatacza, plan.id_karmienia, plan.id_popisu);
-            DELETE FROM plan_dnia WHERE id = plan.id;
-        END IF;
-    END LOOP;
-    RETURN NEW;
-END;
-$historia_planu$ LANGUAGE plpgsql;
-
-CREATE TRIGGER historia_planu BEFORE INSERT OR UPDATE ON plan_dnia
-FOR EACH ROW EXECUTE FUNCTION historia_planu();
-
-
 CREATE OR REPLACE FUNCTION check_plan_dnia()
 RETURNS TRIGGER AS $$
 DECLARE
