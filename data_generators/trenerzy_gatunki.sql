@@ -253,5 +253,4 @@ INSERT INTO trenerzy_gatunki (id_pracownika, id_gatunku) VALUES
 (988, 69),
 (989, 39),
 (995, 85),
-(996, 7),
-(1001, 35);
+(996, 7);
