@@ -1,0 +1,17 @@
+INSERT INTO strefy (nazwa) VALUES
+('Afryka'),
+('Sawanna'),
+('Ocean'),
+('Pustynia'),
+('Jungla'),
+('Tundra'),
+('Góry'),
+('Równina'),
+('Step'),
+('Bagna'),
+('Półwysep'),
+('Wyspa'),
+('Terrarium'),
+('Biegun'),
+('Las'),
+('Wyry');

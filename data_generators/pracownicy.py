@@ -3,7 +3,7 @@ import random
 import string
 import hashlib
 
-fake = Faker('pl_PL')  # Polish locale
+fake = Faker('pl_PL')
 
 def generate_pesel():
     pesel = [random.randint(0, 9) for _ in range(10)]
