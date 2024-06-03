@@ -6,6 +6,7 @@ data = [
     open('nieobecnosci_pracownikow.sql').read(),
     open('niedyspozycja_zwierzat.sql').read(),
     open('opiekunowie_gatunki.sql').read(),
+    open('popisy.sql').read(),
     open('pracownicy.sql').read(),
     open('pracownicy_godziny_pracy.sql').read(),
     open('pracownicy_stanowiska.sql').read(),
