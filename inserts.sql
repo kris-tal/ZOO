@@ -911,7 +911,7 @@ INSERT INTO zwierzeta (gatunek, imie, poziom_umiejetnosci) VALUES
 (67, 'John', 8),
 (71, 'Michael', 3);
 
-INSERT INTO pracownicy_stanowiska (id_pracownika, id_stan) VALUES
+INSERT INTO pracownicy_stanowiska (id_pracownika, id_stanowiska) VALUES
 (79, 3),
 (65, 4),
 (90, 3),
@@ -1037,7 +1037,7 @@ INSERT INTO pracownicy_stanowiska (id_pracownika, id_stan) VALUES
 (42, 3),
 (59, 4);
 
-INSERT INTO trenerzy_gatunki (id_gat, id_pracownika) VALUES
+INSERT INTO trenerzy_gatunki (id_gatunku, id_pracownika) VALUES
 (1, 90),
 (2, 16),
 (3, 81),
@@ -1121,7 +1121,7 @@ INSERT INTO trenerzy_gatunki (id_gat, id_pracownika) VALUES
 (81, 17),
 (82, 42);
 
-INSERT INTO opiekunowie_gatunki (id_pracownika, id_gat) VALUES
+INSERT INTO opiekunowie_gatunki (id_pracownika, id_gatunku) VALUES
 (65, 1),
 (43, 2),
 (60, 3),
@@ -1205,7 +1205,7 @@ INSERT INTO opiekunowie_gatunki (id_pracownika, id_gat) VALUES
 (62, 81),
 (29, 82);
 
-INSERT INTO sprzatacze_wybiegi (id_pracownika, id_wybieg) VALUES
+INSERT INTO sprzatacze_wybiegi (id_pracownika, id_wybiegu) VALUES
 (79, 1), (65, 2), (90, 3), (56, 4), (37, 5), (69, 6), (16, 7), (51, 8), (7, 9), (38, 10),
 (44, 11), (43, 12), (81, 13), (32, 14), (21, 15), (25, 16), (88, 17), (23, 18), (82, 19), (73, 20),
 (34, 21), (62, 22), (52, 23), (66, 24), (50, 25), (24, 26), (68, 27), (49, 28), (86, 29), (89, 30),
@@ -1220,7 +1220,7 @@ INSERT INTO sprzatacze_wybiegi (id_pracownika, id_wybieg) VALUES
 (47, 11), (73, 12), (57, 13), (83, 14), (66, 15), (26, 16), (34, 17), (17, 18), (62, 19), (64, 20),
 (46, 21), (31, 22), (42, 23), (59, 24);
 
-INSERT INTO popisy (trener, gatunek, min_ilosc, min_poz) VALUES
+INSERT INTO popisy (trener, gatunek, min_ilosc, min_poziom_umiejetnosci) VALUES
 (52, 40, 3, 6),
 (96, 26, 2, 7),
 (33, 61, 4, 8),
@@ -1325,7 +1325,7 @@ INSERT INTO popisy (trener, gatunek, min_ilosc, min_poz) VALUES
 --karmienie trwa 15' - 1h30'
 --karmienie 1-2 razy dziennie
 --sprzatanie 2 razy w tygodniu od 45' do 2h30'
-INSERT INTO plan_tygodnia (dzien_tyg, godz_od, godz_do, id_sprzat, id_karm, id_popis)VALUES
+INSERT INTO plan_dnia (data, godzina_od, godzina_do, id_sprzatacza, id_karmienia, id_popisu)VALUES
 (1, '12:00','14:30', NULL, NULL, 21),
 (1, '16:15','16:30', NULL, NULL, 81),
 (1, '8:45','11:15', NULL, NULL, 47),
