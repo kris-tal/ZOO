@@ -1,3 +1,5 @@
+BEGIN;
+
 INSERT INTO godziny_otwarcia (dzien_tygodnia, otwarcie, zamkniecie) VALUES
 (1, '10:00'::time, '19:00'::time),
 (2, '10:00'::time, '19:00'::time),
@@ -17545,3 +17547,4 @@ INSERT INTO trenerzy_gatunki (id_pracownika, id_gatunku) VALUES
 (996, 7);
 
 
+COMMIT;

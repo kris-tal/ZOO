@@ -18,6 +18,8 @@ data = [
     open('trenerzy_gatunki.sql').read()
 ]
 
+w.write('BEGIN;\n\n')
 for insert in data:
     w.write(insert)
     w.write('\n\n')
+w.write('COMMIT;\n')
