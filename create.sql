@@ -3,6 +3,7 @@
 DROP TABLE IF EXISTS godziny_otwarcia CASCADE;
 DROP TABLE IF EXISTS pracownicy CASCADE;
 DROP TABLE IF EXISTS pracownicy_godziny_pracy CASCADE;
+DROP TABLE IF EXISTS konta CASCADE;
 DROP TABLE IF EXISTS stanowiska CASCADE;
 DROP TABLE IF EXISTS strefy CASCADE;
 DROP TABLE IF EXISTS wybiegi CASCADE;
@@ -12,11 +13,8 @@ DROP TABLE IF EXISTS pracownicy_stanowiska CASCADE;
 DROP TABLE IF EXISTS trenerzy_gatunki CASCADE;
 DROP TABLE IF EXISTS opiekunowie_gatunki CASCADE;
 DROP TABLE IF EXISTS sprzatacze_wybiegi CASCADE;
-DROP TABLE IF EXISTS niedyspozycja_zwierzat CASCADE;
-DROP TABLE IF EXISTS nieobecnosci_pracownikow CASCADE;
 DROP TABLE IF EXISTS popisy CASCADE;
 DROP TABLE IF EXISTS plan_dnia CASCADE;
-DROP TABLE IF EXISTS historia_plan_dnia CASCADE;
 DROP VIEW IF EXISTS plan_24h CASCADE;
 DROP VIEW IF EXISTS plan_godziny_otwarcia CASCADE;
 
@@ -150,6 +148,27 @@ CREATE TABLE historia_plan_dnia ( -- tu nie robimy checkow bo nie da sie inserto
 );
 
 -- tu nic nie mona dodawac ale regula nie zadziala
+--CREATE RULE historia_insert AS ON INSERT TO historia_plan_dnia DO INSTEAD NOTHING;
+
+
+CREATE OR REPLACE FUNCTION historia_planu()
+RETURNS TRIGGER AS $historia_planu$
+DECLARE
+    plan RECORD;
+BEGIN
+    FOR plan IN SELECT * FROM plan_dnia LOOP
+        IF plan.data < CURRENT_DATE THEN
+            INSERT INTO historia_plan_dnia VALUES
+            (plan.id, plan.data, plan.godzina_od, plan.godzina_do, plan.id_sprzatacza, plan.id_karmienia, plan.id_popisu);
+            DELETE FROM plan_dnia WHERE id = plan.id;
+        END IF;
+    END LOOP;
+    RETURN NEW;
+END;
+$historia_planu$ LANGUAGE plpgsql;
+
+CREATE TRIGGER historia_planu BEFORE INSERT OR UPDATE ON plan_dnia
+FOR EACH ROW EXECUTE FUNCTION historia_planu();
 
 CREATE VIEW plan_24h AS
 SELECT
