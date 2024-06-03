@@ -5,13 +5,14 @@ data = [
     open('godziny_otwarcia.sql').read(),
     open('nieobecnosci_pracownikow.sql').read(),
     open('niedyspozycja_zwierzat.sql').read(),
-    open('opiekunowie-gatunki.sql').read(),
+    open('opiekunowie_gatunki.sql').read(),
     open('pracownicy.sql').read(),
     open('pracownicy_godziny_pracy.sql').read(),
-    open('pracownik-stanowisko.sql').read(),
+    open('pracownicy_stanowiska.sql').read(),
+    open('sprzatacze_wybiegi.sql').read(),
     open('stanowiska.sql').read(),
     open('strefy.sql').read(),
-    open('trenerzy-gatunki.sql').read(),
+    open('trenerzy_gatunki.sql').read(),
     open('wybiegi.sql').read(),
     open('zwierzeta.sql').read()
 ]

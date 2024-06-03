@@ -1,10 +1,10 @@
 import random
 import re
 
-def generuj_opiekunowie_gatunki(plik_pracownik_stanowisko, liczba_gatunkow):
+def generuj_opiekunowie_gatunki(plik, liczba_gatunkow):
     opiekunowie = []
 
-    with open(plik_pracownik_stanowisko, 'r') as f:
+    with open(plik, 'r') as f:
         for line in f:
             match = re.search(r'\((\d+), (\d+)\)', line)
             if match:
@@ -21,4 +21,4 @@ def generuj_opiekunowie_gatunki(plik_pracownik_stanowisko, liczba_gatunkow):
         id_pracownika = random.choice(opiekunowie)
         print(f"({id_pracownika}, {id_gatunku}),")
 
-generuj_opiekunowie_gatunki('pracownik-stanowisko.sql', 100)
+generuj_opiekunowie_gatunki('pracownicy_stanowiska.sql', 100)
