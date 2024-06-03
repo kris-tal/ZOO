@@ -21,4 +21,4 @@ def generuj_opiekunowie_gatunki(plik, liczba_gatunkow):
         id_pracownika = random.choice(opiekunowie)
         print(f"({id_pracownika}, {id_gatunku}),")
 
-generuj_opiekunowie_gatunki('pracownik-stanowisko.sql', 100)
+generuj_opiekunowie_gatunki('pracownicy_stanowiska.sql', 100)

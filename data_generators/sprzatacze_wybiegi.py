@@ -21,4 +21,4 @@ def generuj_sprzatacze_wybiegi(plik, liczba_wybiegow):
         id_pracownika = random.choice(sprzatacze)
         print(f"({id_pracownika}, {id_wybiegu}),")
 
-generuj_sprzatacze_wybiegi('pracownik_stanowisko.sql', 200)
+generuj_sprzatacze_wybiegi('pracownicy_stanowiska.sql', 200)
