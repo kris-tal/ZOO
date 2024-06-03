@@ -17,6 +17,7 @@ def generate_pesel():
     return pesel_str
 
 def generate_employee_tuples(n):
+    print("INSERT INTO pracownicy (imie, nazwisko, pesel, haslo) VALUES")
     id_counter = 1
     with open('passwords.txt', 'w') as f:
         for _ in range(n):
