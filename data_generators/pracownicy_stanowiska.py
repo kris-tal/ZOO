@@ -5,8 +5,10 @@ import hashlib
 
 fake = Faker('pl_PL')
 
+w = open('pracownicy_stanowiska.sql', 'w')
+
 def generate_position_tuples():
-    print("INSERT INTO praconicy-stanowiska (id_pracownika, id_stanowiska) VALUES")
+    w.write("INSERT INTO pracownicy_stanowiska (id_pracownika, id_stanowiska) VALUES\n")
     with open('pracownicy.sql', 'r') as f:
         employees = [line.strip() for line in f]
 
@@ -22,8 +24,8 @@ def generate_position_tuples():
 
     for i, employee_tuple in enumerate(employee_tuples):
         if i != len(employee_tuples) - 1:
-            print(f"{employee_tuple},")
+            w.write(f"{employee_tuple},\n")
         else:
-            print(f"{employee_tuple};")
+            w.write(f"{employee_tuple};\n")
 
 generate_position_tuples()
