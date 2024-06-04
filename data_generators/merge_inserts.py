@@ -15,7 +15,8 @@ data = [
     open('popisy.sql').read(),
     open('pracownicy_godziny_pracy.sql').read(),
     open('sprzatacze_wybiegi.sql').read(),
-    open('trenerzy_gatunki.sql').read()
+    open('trenerzy_gatunki.sql').read(),
+    open('plan_dnia.sql').read()
 ]
 
 w.write('BEGIN;\n\n')
