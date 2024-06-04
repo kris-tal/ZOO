@@ -158,7 +158,7 @@ data, pt.godzina_od, pt.godzina_do,
 CASE WHEN id_sprzatacza IS NOT NULL THEN 'sprzatanie'
 WHEN id_karmienia IS NOT NULL THEN 'karmienie'
 ELSE 'popis' END AS rodzaj,
-w.id AS wybieg, s.nazwa AS strefa, p.id AS id_popisu, pr.id AS id_trener, pr.imie, pr.nazwisko, gat.nazwa AS gatunek, min_ilosc, min_poziom_umiejetnosci, g.nazwa, g.id_wybiegu, g.licznosc
+w.id AS wybieg, s.nazwa AS strefa, p.id AS id_popisu, pr.id AS id_trener, pr.imie, pr.nazwisko, gat.nazwa AS gatunek, min_ilosc, min_poziom_umiejetnosci, g.nazwa, g.id_wybiegu
 
 FROM plan_dnia pt
 LEFT OUTER JOIN wybiegi w ON pt.id_sprzatacza = w.id
