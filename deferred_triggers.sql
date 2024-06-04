@@ -73,16 +73,16 @@ FOR EACH ROW EXECUTE PROCEDURE check_sprzatacz();
 -- DEFERRABLE INITIALLY DEFERRED
 -- FOR EACH ROW EXECUTE PROCEDURE check_cleaner_enclosure();
 
-CREATE OR REPLACE FUNCTION check_trener_gatunek() RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW.id_stanowiska = 3 AND NOT EXISTS (SELECT 1 FROM trenerzy_gatunki WHERE id_pracownika = NEW.id_pracownika) THEN
-        RAISE EXCEPTION 'kazdy trener musi miec gatunek';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE CONSTRAINT TRIGGER trener_gatunek
-AFTER INSERT OR UPDATE ON pracownicy_stanowiska
-DEFERRABLE INITIALLY DEFERRED
-FOR EACH ROW EXECUTE PROCEDURE check_trener_gatunek();
+-- CREATE OR REPLACE FUNCTION check_trener_gatunek() RETURNS TRIGGER AS $$
+-- BEGIN
+--     IF NEW.id_stanowiska = 3 AND NOT EXISTS (SELECT 1 FROM trenerzy_gatunki WHERE id_pracownika = NEW.id_pracownika) THEN
+--         RAISE EXCEPTION 'kazdy trener musi miec gatunek';
+--     END IF;
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+--
+-- CREATE CONSTRAINT TRIGGER trener_gatunek
+-- AFTER INSERT OR UPDATE ON pracownicy_stanowiska
+-- DEFERRABLE INITIALLY DEFERRED
+-- FOR EACH ROW EXECUTE PROCEDURE check_trener_gatunek();
