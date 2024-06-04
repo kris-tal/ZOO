@@ -11,4 +11,4 @@ CREATE TABLE historia_pracownikow AS SELECT *, NULL::date as data_usuniecia FROM
 ALTER TABLE historia_pracownikow ADD PRIMARY KEY (id, data_usuniecia);
 
 
-//jeszce bedzie historia
+--jeszce bedzie historia

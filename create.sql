@@ -68,25 +68,26 @@ CREATE TABLE wybiegi (
 CREATE TABLE gatunki (
     id SERIAL PRIMARY KEY,
     nazwa VARCHAR(100) NOT NULL UNIQUE,
-    id_wybiegu INTEGER REFERENCES wybiegi(id) NOT NULL,
-    licznosc INTEGER DEFAULT 0
+    id_wybiegu INTEGER REFERENCES wybiegi(id) NOT NULL
 );
 
 CREATE TABLE zwierzeta (
     id SERIAL PRIMARY KEY,
     gatunek INTEGER REFERENCES gatunki(id) NOT NULL,
-    imie VARCHAR(40), --to jest niepotrzebne w sumie ale slodko
-    poziom_umiejetnosci INTEGER CHECK(poziom_umiejetnosci >= 0 AND poziom_umiejetnosci <= 10) NOT NULL
+    imie VARCHAR(40),
+    poziom_umiejetnosci INTEGER CHECK(poziom_umiejetnosci >= 0 AND poziom_umiejetnosci <= 10) NOT NULL,
+    data_dodania DATE NOT NULL  --dodac do insertow
 );
 
 CREATE TABLE pracownicy_stanowiska (
     id_pracownika INTEGER REFERENCES pracownicy(id),
     id_stanowiska INTEGER REFERENCES stanowiska(id),
+    data_dodania DATE NOT NULL  --dodac do insertow
     PRIMARY KEY(id_pracownika, id_stanowiska)
 );
 
 
-CREATE TABLE trenerzy_gatunki (
+CREATE TABLE trenerzy_gatunki ( --kazdy trener musi miec przypisany gatunek
     id_pracownika INTEGER REFERENCES pracownicy(id),
     id_gatunku INTEGER REFERENCES gatunki(id),
     PRIMARY KEY(id_pracownika, id_gatunku)
@@ -175,6 +176,19 @@ SELECT * FROM plan_24h
 WHERE godzina_od > (SELECT otwarcie FROM godziny_otwarcia)
 AND godzina_do < (SELECT zamkniecie FROM godziny_otwarcia)
 ORDER BY data, godzina_od;
+
+--=================== histora ====================
+CREATE TABLE historia_wybiegow AS SELECT *, NULL::date as data_usuniecia FROM wybiegi;
+ALTER TABLE historia_wybiegow ADD PRIMARY KEY (id, data_usuniecia);
+
+CREATE TABLE historia_gatunkow AS SELECT *, NULL::date as data_usuniecia FROM gatunki;
+ALTER TABLE historia_gatunkow ADD PRIMARY KEY (id, data_usuniecia);
+
+CREATE TABLE historia_zwierzat AS SELECT *, NULL::date as data_usuniecia FROM zwierzeta;
+ALTER TABLE historia_zwierzat ADD PRIMARY KEY (id, data_usuniecia);
+
+CREATE TABLE historia_pracownikow AS SELECT *, NULL::date as data_usuniecia FROM pracownicy;
+ALTER TABLE historia_pracownikow ADD PRIMARY KEY (id, data_usuniecia);
 
 --========================================= TRIGGER FUNKCJE =========================================--
 
