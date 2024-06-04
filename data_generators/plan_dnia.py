@@ -1,4 +1,4 @@
-from random import random, randint
+from random import random, randint, gauss
 import datetime
 with open('wybiegi.sql') as f:
     wybiegi = len(f.readlines()) - 2
@@ -46,7 +46,7 @@ for h in range(24):
 # karmienie
 for gatunek in range(1, gatunki+1):
     for razydziennie in range(int(random()*2 + 1)):
-        godz = int(round(random() * 89, 0))
+        godz = max(min(int(gauss(52, 15)), 85), 0)
         rozp = godziny[godz]
         godz = godz + int(round(random()*5, 0) + 1)
         zako = godziny[godz]
@@ -59,7 +59,7 @@ for wybieg in range(1, wybiegi):
     days = []
     days.append(int(round(random()*6 + 1)))
     days.append((days[0] + 3) % 7 + 1)
-    godz = int(round(random() * 85, 0))
+    godz = max(min(int(gauss(52, 15)), 85), 0)
     rozp = godziny[godz]
     godz = godz + int(round(random()*7, 0) + 3)
     zako = godziny[godz]
@@ -68,4 +68,3 @@ for wybieg in range(1, wybiegi):
         w.write(f'(\'{data}\', \'{rozp}\',\'{zako}\', {wybieg}, NULL, NULL)')
         if wybieg == wybiegi - 1 and dayofweek == days[1]: w.write(';\n')
         else: w.write(',\n')
-
