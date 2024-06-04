@@ -173,8 +173,8 @@ ORDER BY data, godzina_od;
 -- do poprawy co jak otwarcie/zamkniecie w trsakcie kar/sprz
 CREATE VIEW plan_godziny_otwarcia AS
 SELECT * FROM plan_24h
-WHERE godzina_od > (SELECT otwarcie FROM godziny_otwarcia)
-AND godzina_do < (SELECT zamkniecie FROM godziny_otwarcia)
+WHERE godzina_od > (SELECT otwarcie FROM godziny_otwarcia WHERE dzien_tygodnia = extract(isodow from data))
+AND godzina_do < (SELECT zamkniecie FROM godziny_otwarcia WHERE dzien_tygodnia = extract(isodow from data))
 ORDER BY data, godzina_od;
 
 --=================== histora ====================
