@@ -17,8 +17,13 @@ DROP TABLE IF EXISTS nieobecnosci_pracownikow CASCADE;
 DROP TABLE IF EXISTS popisy CASCADE;
 DROP TABLE IF EXISTS plan_dnia CASCADE;
 DROP TABLE IF EXISTS historia_plan_dnia CASCADE;
+DROP TABLE IF EXISTS historia_wybiegow CASCADE;
+DROP TABLE IF EXISTS historia_zwierzat CASCADE;
+DROP TABLE IF EXISTS historia_pracownikow CASCADE;
+
 DROP VIEW IF EXISTS plan_24h CASCADE;
 DROP VIEW IF EXISTS plan_godziny_otwarcia CASCADE;
+
 
 -- funkcje trigger
 
