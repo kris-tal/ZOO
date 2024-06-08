@@ -36,7 +36,7 @@ CREATE TABLE pracownicy (
     imie VARCHAR(40) NOT NULL,
     nazwisko VARCHAR(40) NOT NULL,
     pesel CHAR(11),
-    haslo VARCHAR(40), --to bedzie hash hasla ale hashowanie juz chyba w javie
+    haslo VARCHAR(200), --to bedzie hash hasla ale hashowanie juz chyba w javie
     UNIQUE(imie, nazwisko, pesel)
 );
 
