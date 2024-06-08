@@ -187,8 +187,10 @@ CREATE TABLE historia_zwierzat AS SELECT *, NULL::date as data_usuniecia FROM zw
 ALTER TABLE historia_zwierzat ADD PRIMARY KEY (id, data_usuniecia);
 ALTER TABLE historia_zwierzat ADD FOREIGN KEY (gatunek) REFERENCES gatunki(id);
 
-CREATE TABLE historia_pracownikow AS SELECT *, NULL::date as data_usuniecia FROM pracownicy;
+CREATE TABLE historia_pracownikow AS SELECT *, NULL::date as data_usuniecia FROM pracownicy_stanowiska;
 ALTER TABLE historia_pracownikow ADD PRIMARY KEY (id, data_usuniecia);
+ALTER TABLE historia_pracownikow ADD FOREIGN KEY (id_pracownika) REFERENCES pracownicy(id);
+ALTER TABLE historia_pracownikow ADD FOREIGN KEY (id_stanowiska) REFERENCES stanowiska(id);
 
 CREATE TABLE historia_godzin_otwarcia AS SELECT *, NULL::date as data_usuniecia FROM godziny_otwarcia;
 ALTER TABLE historia_wybiegow ADD PRIMARY KEY (id, data_usuniecia);
