@@ -26,7 +26,9 @@ def generuj_opiekunowie_gatunki(plik, liczba_gatunkow):
             id_gatunku = random.randint(1, liczba_gatunkow)
             queries.append(f"({id_pracownika}, {id_gatunku})")
 
-    print("INSERT INTO opiekunowie_gatunki (id_pracownika, id_gatunku) VALUES")
-    print(",\n".join(queries) + ";")
+    with open('opiekunowie_gatunki.sql', 'w') as f:
+        f.write("INSERT INTO opiekunowie_gatunki (id_pracownika, id_gatunku) VALUES\n")
+        f.write(",\n".join(queries) + ";")
+
 
 generuj_opiekunowie_gatunki('pracownicy_stanowiska.sql', 100)

@@ -17,24 +17,24 @@ def generate_pesel():
     return pesel_str
 
 def generate_employee_tuples(n):
-    print("INSERT INTO pracownicy (imie, nazwisko, pesel, haslo) VALUES")
-    id_counter = 1
-    employee_tuples = []
-    with open('passwords.txt', 'w') as f:
-        for _ in range(n):
-            imie = fake.first_name()
-            nazwisko = fake.last_name()
-            pesel = generate_pesel()
-            password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(8)) + random.choice('.!?')
-            f.write(f'ID: {id_counter}, Password: {password}\n')
-            haslo = int(hashlib.sha256(password.encode('utf-8')).hexdigest(), 16) % 10**8
-            employee_tuples.append((imie, nazwisko, pesel, haslo))
-            id_counter += 1
+    with open('pracownicy.sql', 'w') as f:
+        f.write("INSERT INTO pracownicy (imie, nazwisko, pesel, haslo) VALUES\n")
+        id_counter = 1
+        employee_tuples = []
+        with open('passwords.txt', 'w') as pwf:
+            for _ in range(n):
+                imie = fake.first_name()
+                nazwisko = fake.last_name()
+                pesel = generate_pesel()
+                haslo = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(8)) + random.choice('.!?')
+                pwf.write(f'{id_counter} : {haslo}\n')
+                employee_tuples.append((imie, nazwisko, pesel, haslo))
+                id_counter += 1
 
-    for i, employee_tuple in enumerate(employee_tuples):
-        if i != len(employee_tuples) - 1:
-            print(f"{employee_tuple},")
-        else:
-            print(f"{employee_tuple};")
+        for i, employee_tuple in enumerate(employee_tuples):
+            if i != len(employee_tuples) - 1:
+                f.write(f"{employee_tuple},\n")
+            else:
+                f.write(f"{employee_tuple};\n")
 
 generate_employee_tuples(1000)

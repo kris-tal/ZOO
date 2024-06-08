@@ -1,4 +1,25 @@
+import subprocess
 w = open('all_inserts.sql', 'w')
+
+scripts = [
+    'pracownicy.py',
+    'strefy.py',
+    'wybiegi.py',
+    'gatunki.py',
+    'pracownicy_stanowiska.py',
+    'zwierzeta.py',
+    #'nieobecnosci_pracownikow.py',
+    'niedyspozycja_zwierzat.py',
+    'opiekunowie_gatunki.py',
+    'popisy.py',
+    'pracownicy_godziny_pracy.py',
+    'sprzatacze_wybiegi.py',
+    'trenerzy_gatunki.py',
+    'plan_dnia.py'
+]
+
+for script in scripts:
+    subprocess.call(['python3', script])
 
 data = [
     open('godziny_otwarcia.sql').read(),
@@ -19,8 +40,9 @@ data = [
     open('plan_dnia.sql').read()
 ]
 
-w.write('BEGIN;\n\n')
-for insert in data:
-    w.write(insert)
-    w.write('\n\n')
-w.write('COMMIT;\n')
+with open('all_inserts.sql', 'w') as w:
+    w.write('BEGIN;\n\n')
+    for insert in data:
+        w.write(insert)
+        w.write('\n\n')
+    w.write('COMMIT;\n')

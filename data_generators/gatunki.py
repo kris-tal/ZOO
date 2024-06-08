@@ -11,13 +11,14 @@ names = [
 ]
 
 def generate_species(n):
-    print("INSERT INTO gatunki (nazwa, id_wybiegu) VALUES")
-    for i in range(n):
-        nazwa = names[i]
-        id_wybiegu = random.randint(1, 16)
-        if i != n - 1:
-            print(f"('{nazwa}', {id_wybiegu}),")
-        else:
-            print(f"('{nazwa}', {id_wybiegu});")
+    with open('gatunki.sql', 'w') as f:
+        f.write("INSERT INTO gatunki (nazwa, id_wybiegu) VALUES\n")
+        for i in range(n):
+            nazwa = names[i]
+            id_wybiegu = random.randint(1, 16)
+            if i != n - 1:
+                f.write(f"('{nazwa}', {id_wybiegu}),\n")
+            else:
+                f.write(f"('{nazwa}', {id_wybiegu});\n")
 
 generate_species(100)

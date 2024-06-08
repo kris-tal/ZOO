@@ -26,7 +26,8 @@ def generuj_sprzatacze_wybiegi(plik, liczba_wybiegow):
             id_wybiegu = random.randint(1, liczba_wybiegow)
             queries.append(f"({id_pracownika}, {id_wybiegu})")
 
-    print("INSERT INTO sprzatacze_wybiegi (id_pracownika, id_wybiegu) VALUES")
-    print(",\n".join(queries) + ";")
+    with open('sprzatacze_wybiegi.sql', 'w') as f:
+        f.write("INSERT INTO sprzatacze_wybiegi (id_pracownika, id_wybiegu) VALUES\n")
+        f.write(",\n".join(queries) + ";\n")
 
 generuj_sprzatacze_wybiegi('pracownicy_stanowiska.sql', 200)
