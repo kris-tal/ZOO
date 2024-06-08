@@ -192,20 +192,27 @@ CREATE TABLE historia_godzin_otwarcia AS SELECT *, NULL::date as data_usuniecia 
 ALTER TABLE historia_wybiegow ADD PRIMARY KEY (id, data_usuniecia);
 
 --========================================= TRIGGERY =========================================--
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-CREATE OR REPLACE FUNCTION hash_string_sha256()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION moj_hash(str text, p integer DEFAULT 31, m bigint DEFAULT 1000000009)
+RETURNS bigint AS $$
+DECLARE
+    hash_value bigint := 0;
+    p_pow integer := 1;
+    c char;
 BEGIN
-  NEW.haslo := encode(digest(NEW.haslo::text, 'sha256'), 'hex')::varchar(200);
-  RETURN NEW;
+    FOR i in 1..length(str) LOOP
+        c := substr(str, i, 1);
+        hash_value := (hash_value + ((ascii(c) - ascii('a') + 1) * p_pow)) % m;
+        p_pow := (p_pow * p) % m;
+    END LOOP;
+    RETURN hash_value;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER hash_password
 BEFORE INSERT OR UPDATE ON pracownicy
 FOR EACH ROW
-EXECUTE FUNCTION hash_string_sha256();
+EXECUTE FUNCTION moj_hash();
 
 
 --============================================== INDEKSY =============================================--
