@@ -11,10 +11,12 @@ scripts = [
     #'nieobecnosci_pracownikow.py',
     'niedyspozycja_zwierzat.py',
     'opiekunowie_gatunki.py',
+    'trenerzy_gatunki.py',
+    'sprzatacze_wybiegi.py',
     'popisy.py',
     'pracownicy_godziny_pracy.py',
-    'sprzatacze_wybiegi.py',
-    'trenerzy_gatunki.py',
+    
+    
     'plan_dnia.py'
 ]
 

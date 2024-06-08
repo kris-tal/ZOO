@@ -8,9 +8,9 @@ def generuj_sprzatacze_wybiegi(plik, liczba_wybiegow):
 
     with open(plik, 'r') as f:
         for line in f:
-            match = re.search(r'\((\d+), (\d+)\)', line)
+            match = re.search(r'\((\d+), (\d+), (.+)\)', line)
             if match:
-                id_pracownika, id_stanowiska = match.groups()
+                id_pracownika, id_stanowiska, data_dodania = match.groups()
                 if id_stanowiska == '2':
                     sprzatacze.append(id_pracownika)
                     sprzatacz_wybrany[id_pracownika] = False

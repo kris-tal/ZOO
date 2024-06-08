@@ -8,9 +8,9 @@ def generuj_opiekunowie_gatunki(plik, liczba_gatunkow):
 
     with open(plik, 'r') as f:
         for line in f:
-            match = re.search(r'\((\d+), (\d+)\)', line)
+            match = re.search(r'\((\d+), (\d+), (.+)\)', line)
             if match:
-                id_pracownika, id_stanowiska = match.groups()
+                id_pracownika, id_stanowiska, _ = match.groups()
                 if id_stanowiska == '4':
                     opiekunowie.append(id_pracownika)
                     opiekun_wybrany[id_pracownika] = False
