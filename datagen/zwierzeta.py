@@ -11,15 +11,15 @@ def generate_random_date():
 
 def generuj_zwierzeta(n):
     with open('zwierzeta.sql', 'w') as f:
-        f.write("INSERT INTO zwierzeta (gatunek, imie, poziom_umiejetnosci) VALUES\n")
+        f.write("INSERT INTO zwierzeta (gatunek, imie, poziom_umiejetnosci, data_dodania) VALUES\n")
         for i in range(1, n+1):
             gatunek = random.randint(1, 100)
             imie = f"'{fake.first_name()}'" if i % 10 == 0 else "NULL"
             poziom_umiejetnosci = random.randint(1, 10)
             data_dodania = generate_random_date()
             if i != n:
-                f.write(f"({gatunek}, {imie}, {poziom_umiejetnosci}, {data_dodania}),\n")
+                f.write(f"({gatunek}, {imie}, {poziom_umiejetnosci}, \'{data_dodania}\'),\n")
             else:
-                f.write(f"({gatunek}, {imie}, {poziom_umiejetnosci}, {data_dodania});\n")
+                f.write(f"({gatunek}, {imie}, {poziom_umiejetnosci}, \'{data_dodania}\');\n")
 
 generuj_zwierzeta(5000)
