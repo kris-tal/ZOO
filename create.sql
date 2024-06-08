@@ -36,7 +36,7 @@ CREATE TABLE pracownicy (
     imie VARCHAR(40) NOT NULL,
     nazwisko VARCHAR(40) NOT NULL,
     pesel CHAR(11),
-    haslo INTEGER, --to bedzie hash hasla ale hashowanie juz chyba w javie
+    haslo VARCHAR(40), --to bedzie hash hasla ale hashowanie juz chyba w javie
     UNIQUE(imie, nazwisko, pesel)
 );
 
@@ -195,7 +195,7 @@ CREATE OR REPLACE FUNCTION hash_string_sha256()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.haslo := encode(digest(NEW.haslo, 'sha256'), 'hex');
-  RETURN NEW.haslo;
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
