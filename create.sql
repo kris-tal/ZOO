@@ -122,7 +122,8 @@ CREATE TABLE niedyspozycja_zwierzat (
 );
 
 CREATE TABLE popisy (
-    id SERIAL PRIMARY KEY ,
+    id SERIAL PRIMARY KEY,
+    nazwa VARCHAR(100) NOT NULL,
     trener INTEGER REFERENCES pracownicy(id) NOT NULL,
     gatunek INTEGER REFERENCES gatunki(id) NOT NULL,
     min_ilosc INTEGER CHECK(min_ilosc > 0),
@@ -192,4 +193,6 @@ ALTER TABLE historia_pracownikow ADD PRIMARY KEY (id, data_usuniecia);
 
 
 
---========================================= INSERTY =========================================--
+--============================================== INSERTY =============================================--
+--============================================== INDEKSY =============================================--
+CREATE INDEX idx_zwierzeta_gatunek ON zwierzeta(gatunek);
