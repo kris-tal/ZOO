@@ -7,8 +7,8 @@ w.write('INSERT INTO pracownicy_godziny_pracy (id_pracownika, dzien_tygodnia, go
 
 for emp in range(1, ile):
     for dow in range(1, 8):
-        godzina_od = max(2, int(random.gauss(9, 3)))
-        godzina_do = min(23, max(godzina_od + 4, int(random.gauss(18, 3))))
+        godzina_od = max(2, int(random.gauss(7, 3)))
+        godzina_do = min(23, max(godzina_od + 4, int(random.gauss(19, 3))))
         godzina_do = str(godzina_do)
         godzina_od = str(godzina_od)
 
