@@ -19,6 +19,6 @@ for emp in range(1, ile):
         w.write(f'({emp}, {dow}, \'{godzina_od}:00\', \'{godzina_do}:00\')')
 
         if emp + dow == ile + 6:
-            w.write(',\n')
-        else:
             w.write(';\n')
+        else:
+            w.write(',\n')
