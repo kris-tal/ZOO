@@ -2,12 +2,12 @@ import random
 
 names = [
 'Lew', 'Tygrys', 'Słoń', 'Żyrafa', 'Hipopotam', 'Krokodyl', 'Panda wielka', 'Koala', 'Pawian', 'Flaming', 'Nosorożec', 'Zebra', 'Kangur', 'Orangutan', 'Goryl', 'Żółw olbrzymi',
-'Niedźwiedź polarny', 'Wilk szary', 'Lis polarny', 'Jeleń', 'Królik', 'Wiewiórka', 'Szop pracz', 'Skunks', 'Bóbr', 'Wydra europejska', 'Delfin', 'Opos', 'Mysz', 'Szczur',
-'Nietoperz', 'Łasica', 'Kret', 'Jeżozwierz', 'Pancernik', 'Fretka', 'Jeż europejski', 'Motyl', 'Świstak', 'Burunduk', 'Kuna domowa', 'Łoś', 'Piżmak', 'Ryjówka',
+'Niedźwiedź polarny', 'Wilk szary', 'Lis polarny', 'Jeleń', 'Królik', 'Wiewiórka', 'Szop pracz', 'Skunks', 'Bóbr', 'Wydra europejska', 'Delfin', 'Opos', 'Duża mysz', 'Szczur',
+'Nietoperz', 'Łasica', 'Duży kret', 'Jeżozwierz', 'Pancernik', 'Fretka', 'Jeż europejski', 'Duży motyl', 'Świstak', 'Burunduk', 'Kuna domowa', 'Łoś', 'Piżmak', 'Ryjówka',
 'Nornik', 'Piesek preriowy', 'Kojot', 'Dingo', 'Hiena cętkowana', 'Szakal', 'Południowy wombat', 'Gepard', 'Lampart', 'Jaguar', 'Pantera', 'Puma', 'Ryś', 'Ryś rudy', 'Kuguar', 'Ocelot',
-'Serwal', 'Karakal', 'Cyweta', 'Genet', 'Mangusta', 'Surykatka', 'Gronostaj', 'Rosomak', 'Foka szara', 'Mors', 'Lew morski', 'Mrównik', 'Mrówkojad wielki', 'Łuskowiec', 'Kolczatka',
-'Dziobak', 'Szpak', 'Walabia', 'Wombat', 'Diabeł tasmański', 'Aksolotl', 'Bilbi', 'Kuoka', 'Dinozaur', 'Lotopałanka', 'Wilk workowaty', 'Kuśkus', 'Rekin', 'Pingwin',
-'Wąż', 'Surykatka', 'Kanguroszczur', 'Siteks ruczajowy', 'Aligator', 'Północny wombat', 'Dziki kot', 'Meduza', 'Szynszyla', 'Armadillo', 'Świnia rzeczna', 'Manat'
+'Serwal', 'Karakal', 'Cyweta', 'Genet', 'Mangusta', 'Surykatka', 'Gronostaj', 'Rosomak', 'Foka szara', 'Mors', 'Lew morski', 'Mrównik', 'Mrówkojad wielki', 'Duży łuskowiec', 'Kolczatka',
+'Dziobak', 'Szpak', 'Walabia', 'Wombat', 'Diabeł tasmański', 'Aksolotl', 'Bilbi', 'Kuoka', 'Dinozaur', 'Duża lotopałanka', 'Wilk workowaty', 'Kuśkus', 'Rekin', 'Pingwin',
+'Wąż', 'Surykatka', 'Kanguroszczur', 'Siteks ruczajowy', 'Aligator', 'Północny wombat', 'Dziki kot', 'Duża meduza', 'Duża szynszyla', 'Dorodny szczupak', 'Świnia rzeczna', 'Manat'
 ]
 
 def generate_species(n):
