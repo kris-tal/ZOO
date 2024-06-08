@@ -9,11 +9,9 @@ def generate_random_date():
 def generate_position_tuples():
     with open('pracownicy_stanowiska.sql', 'w') as w:
         w.write("INSERT INTO pracownicy_stanowiska (id_pracownika, id_stanowiska, data_dodania) VALUES\n")
-        with open('pracownicy.sql', 'r') as f:
-            employees = [line.strip() for line in f]
 
         employee_tuples = []
-        for i, employee in enumerate(employees, start=1):
+        for i in range(1, 1001):
             if i <= 10:
                 position_ids = random.sample(range(1, 5), 2)
                 for position_id in position_ids:
@@ -27,5 +25,7 @@ def generate_position_tuples():
                 w.write(f"{employee_tuple},\n")
             else:
                 w.write(f"{employee_tuple};\n")
+
+generate_position_tuples()
 
 generate_position_tuples()
