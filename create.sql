@@ -171,7 +171,7 @@ LEFT OUTER JOIN gatunki gat ON p.gatunek = gat.id
 
 ORDER BY data, godzina_od;
 
--- do poprawy co jak otwarcie/zamkniecie w trsakcie kar/sprz
+-- otwarcie/zamkniecie w trsakcie kar/sprz
 CREATE VIEW plan_godziny_otwarcia AS
 SELECT * FROM plan_24h
 WHERE godzina_od > (SELECT otwarcie FROM godziny_otwarcia WHERE dzien_tygodnia = extract(isodow from data))
@@ -181,9 +181,11 @@ ORDER BY data, godzina_od;
 --=================== histora ====================
 CREATE TABLE historia_wybiegow AS SELECT *, NULL::date as data_usuniecia FROM wybiegi;
 ALTER TABLE historia_wybiegow ADD PRIMARY KEY (id, data_usuniecia);
+ALTER TABLE historia_wybiegow ADD FOREIGN KEY (strefa) REFERENCES strefy(id);
 
 CREATE TABLE historia_zwierzat AS SELECT *, NULL::date as data_usuniecia FROM zwierzeta;
 ALTER TABLE historia_zwierzat ADD PRIMARY KEY (id, data_usuniecia);
+ALTER TABLE historia_zwierzat ADD FOREIGN KEY (gatunek) REFERENCES gatunki(id);
 
 CREATE TABLE historia_pracownikow AS SELECT *, NULL::date as data_usuniecia FROM pracownicy;
 ALTER TABLE historia_pracownikow ADD PRIMARY KEY (id, data_usuniecia);
@@ -258,27 +260,7 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER dobry_pesel
 BEFORE INSERT OR UPDATE ON pracownicy
 FOR EACH ROW EXECUTE PROCEDURE dobry_pesel();
--------------------------------------------------------------------------------------
 
------- updatuje licznosc gatunku
--- CREATE FUNCTION update_licznosc_gatunku()
--- RETURNS TRIGGER AS $$
--- BEGIN
---     UPDATE gatunki
---     SET licznosc = (
---         SELECT COUNT(*)
---         FROM zwierzeta
---         WHERE zwierzeta.gatunek = NEW.gatunek
---     )
---     WHERE id = NEW.gatunek;
---
---     RETURN NEW;
--- END;
--- $$ LANGUAGE plpgsql;
---
--- CREATE TRIGGER change_zwierzeta
---     AFTER INSERT OR UPDATE OR DELETE ON zwierzeta
---     FOR EACH ROW EXECUTE FUNCTION update_licznosc_gatunku();
 -------------------------------------------------------------------------------------
 ------ sprawdzam czy popis nie jest poza czasem otwarcia zoo
 CREATE OR REPLACE FUNCTION check_godziny_otwarcia() RETURNS TRIGGER
@@ -360,7 +342,12 @@ BEGIN
        SELECT true FROM nieobecnosci_pracownikow
        WHERE NEW.data >= data_od AND NEW.data <= data_do AND id_pracownika = dodawany_id
     ) THEN
-       RETURN NULL;
+        IF NEW.id_popisu IS NOT NULL THEN
+            RAISE NOTICE 'Trener prowadzacy popis jest nieobecny';
+            RETURN NULL;
+        END IF;
+        RAISE NOTICE 'Pracownik nieobecny'; --zastepstwa
+        RETURN NULL;
     END IF;
 
     -- godziny pracy
@@ -368,6 +355,7 @@ BEGIN
         SELECT true FROM pracownicy_godziny_pracy
         WHERE id_pracownika = dodawany_id AND (NEW.godzina_od < godzina_od OR NEW.godzina_do > godzina_do)
     ) THEN
+        RAISE NOTICE 'Wydarzenie poza godzinami pracy pracownika';
         RETURN NULL;
     END IF;
 
@@ -379,6 +367,7 @@ BEGIN
         AND (godzina_od <= NEW.godzina_od AND NEW.godzina_od < godzina_do
                  OR godzina_od < NEW.godzina_do AND NEW.godzina_do <= godzina_do)
     ) THEN
+        RAISE NOTICE 'Pracownik jest wtedy zajęty';
         RETURN NULL;
     END IF;
 
@@ -413,6 +402,7 @@ BEGIN
         OR godzina_od <= NEW.godzina_od AND NEW.godzina_od < godzina_do);
 
     IF dostepne_zwierzeta - niedostepne_zwierzeta < popis.min_ilosc THEN
+        RAISE NOTICE 'Brak wystarczajacej ilosci zwierząt';
         RETURN NULL;
     END IF;
 
