@@ -5,7 +5,7 @@ names = [
 'Niedźwiedź polarny', 'Wilk szary', 'Lis polarny', 'Jeleń', 'Królik', 'Wiewiórka', 'Szop pracz', 'Skunks', 'Bóbr', 'Wydra europejska', 'Delfin', 'Opos', 'Duża mysz', 'Szczur',
 'Nietoperz', 'Łasica', 'Duży kret', 'Jeżozwierz', 'Pancernik', 'Fretka', 'Jeż europejski', 'Duży motyl', 'Świstak', 'Burunduk', 'Kuna domowa', 'Łoś', 'Piżmak', 'Ryjówka',
 'Nornik', 'Piesek preriowy', 'Kojot', 'Dingo', 'Hiena cętkowana', 'Szakal', 'Południowy wombat', 'Gepard', 'Lampart', 'Jaguar', 'Pantera', 'Puma', 'Ryś', 'Ryś rudy', 'Kuguar', 'Ocelot',
-'Serwal', 'Karakal', 'Cyweta', 'Genet', 'Mangusta', 'Surykatka', 'Gronostaj', 'Rosomak', 'Foka szara', 'Mors', 'Lew morski', 'Mrównik', 'Mrówkojad wielki', 'Duży łuskowiec', 'Kolczatka',
+'Serwal', 'Karakal', 'Cyweta', 'Genet', 'Mangusta', 'Karp', 'Gronostaj', 'Rosomak', 'Foka szara', 'Mors', 'Lew morski', 'Mrównik', 'Mrówkojad wielki', 'Duży łuskowiec', 'Kolczatka',
 'Dziobak', 'Szpak', 'Walabia', 'Wombat', 'Diabeł tasmański', 'Aksolotl', 'Bilbi', 'Kuoka', 'Dinozaur', 'Duża lotopałanka', 'Wilk workowaty', 'Kuśkus', 'Rekin', 'Pingwin',
 'Wąż', 'Surykatka', 'Kanguroszczur', 'Siteks ruczajowy', 'Aligator', 'Północny wombat', 'Dziki kot', 'Duża meduza', 'Duża szynszyla', 'Dorodny szczupak', 'Świnia rzeczna', 'Manat'
 ]
