@@ -6,9 +6,9 @@ def generuj_trenerzy_gatunki(plik_pracownik_stanowisko, liczba_gatunkow):
 
     with open(plik_pracownik_stanowisko, 'r') as f:
         for line in f:
-            match = re.search(r'\((\d+), (\d+)\)', line)
+            match = re.search(r'\((\d+), (\d+), (.+)\)', line)
             if match:
-                id_pracownika, id_stanowiska = match.groups()
+                id_pracownika, id_stanowiska, _ = match.groups()
                 if id_stanowiska == '3':
                     trenerzy.append(id_pracownika)
 

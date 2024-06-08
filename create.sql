@@ -36,7 +36,7 @@ CREATE TABLE pracownicy (
     imie VARCHAR(40) NOT NULL,
     nazwisko VARCHAR(40) NOT NULL,
     pesel CHAR(11),
-    haslo VARCHAR(200), --to bedzie hash hasla ale hashowanie juz chyba w javie
+    haslo VARCHAR(200),
     UNIQUE(imie, nazwisko, pesel)
 );
 
@@ -82,7 +82,7 @@ CREATE TABLE zwierzeta (
 CREATE TABLE pracownicy_stanowiska (
     id_pracownika INTEGER REFERENCES pracownicy(id),
     id_stanowiska INTEGER REFERENCES stanowiska(id),
-    data_dodania DATE NOT NULL,  --dodac do insertow
+    data_dodania DATE NOT NULL,
     PRIMARY KEY(id_pracownika, id_stanowiska)
 );
 
@@ -194,7 +194,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE OR REPLACE FUNCTION hash_string_sha256()
 RETURNS TRIGGER AS $$
 BEGIN
-  NEW.haslo := encode(digest(NEW.haslo, 'sha256'), 'hex');
+  NEW.haslo := encode(digest(NEW.haslo::text, 'sha256'), 'hex')::varchar(200);
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

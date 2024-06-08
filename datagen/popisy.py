@@ -1,11 +1,14 @@
 import random
-
-f = open('pracownicy_stanowiska.sql').read().split('\n')
+import re
 
 trenerzy = []
-for line in f:
-    if line[line.find(',') + 2:line.find(')')] == '3':
-        trenerzy.append(line[1:line.find(',')])
+with open('pracownicy_stanowiska.sql', 'r') as f:
+    for line in f:
+        match = re.search(r'\((\d+),\s*(\d+)', line)
+        if match:
+            id_pracownika, id_stanowiska = match.groups()
+            if id_stanowiska == '3':
+                trenerzy.append(id_pracownika)
 
 f = open('gatunki.sql').read().split('\n')
 ile_zwierzat = len(f) - 2
