@@ -189,10 +189,21 @@ CREATE TABLE historia_pracownikow AS SELECT *, NULL::date as data_usuniecia FROM
 ALTER TABLE historia_pracownikow ADD PRIMARY KEY (id, data_usuniecia);
 
 --========================================= TRIGGER FUNKCJE =========================================--
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+CREATE OR REPLACE FUNCTION hash_string_sha256()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.haslo := encode(digest(NEW.haslo, 'sha256'), 'hex');
+  RETURN NEW.haslo;
+END;
+$$ LANGUAGE plpgsql;
 
-
+CREATE TRIGGER hash_password
+BEFORE INSERT OR UPDATE ON pracownicy
+FOR EACH ROW
+EXECUTE FUNCTION hash_string_sha256();
 
 --============================================== INSERTY =============================================--
 --============================================== INDEKSY =============================================--
-CREATE INDEX idx_zwierzeta_gatunek ON zwierzeta(gatunek);
+-- CREATE INDEX idx_zwierzeta_gatunek ON zwierzeta(gatunek);
