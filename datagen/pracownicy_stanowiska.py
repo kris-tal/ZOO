@@ -27,5 +27,3 @@ def generate_position_tuples():
                 w.write(f"{employee_tuple};\n")
 
 generate_position_tuples()
-
-generate_position_tuples()
