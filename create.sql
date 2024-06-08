@@ -1,6 +1,7 @@
 --========================================= DROP IF EXISTS =========================================--
 
 DROP TABLE IF EXISTS godziny_otwarcia CASCADE;
+DROP TABLE IF EXISTS historia_godziny_otwarcia CASCADE;
 DROP TABLE IF EXISTS pracownicy CASCADE;
 DROP TABLE IF EXISTS pracownicy_godziny_pracy CASCADE;
 DROP TABLE IF EXISTS stanowiska CASCADE;
@@ -150,8 +151,7 @@ CREATE TABLE historia_plan_dnia ( -- tu nie robimy checkow bo nie da sie inserto
     id_karmienia INTEGER REFERENCES gatunki(id),
     id_popisu INTEGER REFERENCES popisy(id)
 );
-
--- tu nic nie mona dodawac ale regula nie zadziala
+-- tu nic nie mona dodawac
 
 CREATE VIEW plan_24h AS
 SELECT
@@ -159,7 +159,7 @@ data, pt.godzina_od, pt.godzina_do,
 CASE WHEN id_sprzatacza IS NOT NULL THEN 'sprzatanie'
 WHEN id_karmienia IS NOT NULL THEN 'karmienie'
 ELSE 'popis' END AS rodzaj,
-w.id AS wybieg, s.nazwa AS strefa, p.id AS id_popisu, pr.id AS id_trener, pr.imie, pr.nazwisko, gat.nazwa AS gatunek, min_ilosc, min_poziom_umiejetnosci, g.nazwa, g.id_wybiegu
+w.id AS wybieg, s.nazwa AS strefa, p.nazwa AS id_popisu, pr.id AS id_trener, pr.imie, pr.nazwisko, gat.nazwa AS gatunek, min_ilosc, min_poziom_umiejetnosci, g.nazwa, g.id_wybiegu
 
 FROM plan_dnia pt
 LEFT OUTER JOIN wybiegi w ON pt.id_sprzatacza = w.id
@@ -187,6 +187,9 @@ ALTER TABLE historia_zwierzat ADD PRIMARY KEY (id, data_usuniecia);
 
 CREATE TABLE historia_pracownikow AS SELECT *, NULL::date as data_usuniecia FROM pracownicy;
 ALTER TABLE historia_pracownikow ADD PRIMARY KEY (id, data_usuniecia);
+
+CREATE TABLE historia_godzin_otwarcia AS SELECT *, NULL::date as data_usuniecia FROM godziny_otwarcia;
+ALTER TABLE historia_wybiegow ADD PRIMARY KEY (id, data_usuniecia);
 
 --========================================= TRIGGERY =========================================--
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
