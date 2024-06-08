@@ -195,23 +195,19 @@ ALTER TABLE historia_wybiegow ADD PRIMARY KEY (id, data_usuniecia);
 
 --========================================= TRIGGERY =========================================--
 
-CREATE OR REPLACE FUNCTION moj_hash()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION moj_hash(str text)
+RETURNS integer AS $$
 DECLARE
     hash_value integer := 0;
-    p_pow integer := 1;
-    p integer := 37;
-    m integer := 60382579;
+    prime integer := 31;
+    mod integer := 1000000007;
     c char;
 BEGIN
-    FOR i in 1..length(NEW.haslo) LOOP
-        c := substr(NEW.haslo, i, 1);
-        hash_value := (hash_value + ((ascii(c) - ascii('a') + 1) * p_pow)) % m;
-        p_pow := (p_pow * p) % m;
+    FOR i in 1..length(str) LOOP
+        c := substr(str, i, 1);
+        hash_value := (hash_value * prime + ascii(c)) % mod;
     END LOOP;
-    NEW.haslo := hash_value::text;
-
-    RETURN NEW;
+    RETURN hash_value;
 END;
 $$ LANGUAGE plpgsql;
 
