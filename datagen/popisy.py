@@ -14,11 +14,20 @@ f = open('gatunki.sql').read().split('\n')
 ile_zwierzat = len(f) - 2
 nazwy = open('popisy.txt').read().split('\n')
 
+gatunki = open('gatunki.sql').read().split("\n")
+for i in range(len(gatunki)):
+    gatunki[i] = gatunki[i][2:gatunki[i].find(',')-1]
+gatunki = gatunki[1:]
+print(gatunki)
+
 w = open('popisy.sql', 'w')
 w.write('INSERT INTO popisy (trener, gatunek, min_ilosc, min_poziom_umiejetnosci, nazwa) VALUES\n')
 
 for i in range(401):
-    w.write(f'({random.choice(trenerzy)}, {random.randint(1, ile_zwierzat)}, {random.randint(1, 7)}, '
-            f'{random.randint(0, 10)}, \'{random.choice(nazwy)}\')')
+    gat = random.randint(1, ile_zwierzat)
+    nazwa = random.choice(nazwy)
+    nazwa = nazwa[nazwa.find(" "):]
+    w.write(f'({random.choice(trenerzy)}, {gat}, {random.randint(1, 7)}, '
+            f'{random.randint(0, 10)}, \'{gatunki[gat-1] + nazwa}\')')
     if i < 400: w.write(',\n')
     else: w.write(';\n')
