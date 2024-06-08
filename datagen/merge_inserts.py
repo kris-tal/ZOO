@@ -8,11 +8,11 @@ scripts = [
     'gatunki.py',
     'pracownicy_stanowiska.py',
     'zwierzeta.py',
+    'trenerzy_gatunki.py',
+    'sprzatacze_wybiegi.py',
     #'nieobecnosci_pracownikow.py',
     'niedyspozycja_zwierzat.py',
     'opiekunowie_gatunki.py',
-    'trenerzy_gatunki.py',
-    'sprzatacze_wybiegi.py',
     'popisy.py',
     'pracownicy_godziny_pracy.py',
     
