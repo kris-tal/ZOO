@@ -250,24 +250,24 @@ FOR EACH ROW EXECUTE PROCEDURE dobry_pesel();
 -------------------------------------------------------------------------------------
 
 ------ updatuje licznosc gatunku
-CREATE FUNCTION update_licznosc_gatunku()
-RETURNS TRIGGER AS $$
-BEGIN
-    UPDATE gatunki
-    SET licznosc = (
-        SELECT COUNT(*)
-        FROM zwierzeta
-        WHERE zwierzeta.gatunek = NEW.gatunek
-    )
-    WHERE id = NEW.gatunek;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER change_zwierzeta
-    AFTER INSERT OR UPDATE OR DELETE ON zwierzeta
-    FOR EACH ROW EXECUTE FUNCTION update_licznosc_gatunku();
+-- CREATE FUNCTION update_licznosc_gatunku()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--     UPDATE gatunki
+--     SET licznosc = (
+--         SELECT COUNT(*)
+--         FROM zwierzeta
+--         WHERE zwierzeta.gatunek = NEW.gatunek
+--     )
+--     WHERE id = NEW.gatunek;
+--
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+--
+-- CREATE TRIGGER change_zwierzeta
+--     AFTER INSERT OR UPDATE OR DELETE ON zwierzeta
+--     FOR EACH ROW EXECUTE FUNCTION update_licznosc_gatunku();
 -------------------------------------------------------------------------------------
 ------ sprawdzam czy popis nie jest poza czasem otwarcia zoo
 CREATE OR REPLACE FUNCTION check_godziny_otwarcia() RETURNS TRIGGER
