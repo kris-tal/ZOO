@@ -197,6 +197,7 @@ CREATE TABLE historia_pracownicy_godziny_pracy (
     FOREIGN KEY(id_pracownika) REFERENCES pracownicy (id) ON DELETE CASCADE
 );
 
+
 CREATE OR REPLACE FUNCTION update_historia_pracownicy_godziny_pracy() RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO historia_pracownicy_godziny_pracy (id_pracownika, dzien_tygodnia, godzina_od, godzina_do, data_zmiany)

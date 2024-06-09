@@ -214,19 +214,6 @@ AFTER DELETE ON zwierzeta
 FOR EACH ROW
 EXECUTE PROCEDURE dodaj_do_historii_zwierzat();
 
-CREATE OR REPLACE FUNCTION dodaj_do_historii_gatunkow() RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO historia_gatunkow (id_gatunku, data_usuniecia)
-    VALUES (OLD.id, CURRENT_DATE);
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER historia_gatunkow_trigger
-AFTER DELETE ON gatunki
-FOR EACH ROW
-EXECUTE PROCEDURE dodaj_do_historii_gatunkow();
-
 CREATE OR REPLACE FUNCTION dodaj_do_historii_wybiegow() RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO historia_wybiegow (id_wybiegu, data_usuniecia)
@@ -239,3 +226,29 @@ CREATE TRIGGER historia_wybiegow_trigger
 AFTER DELETE ON wybiegi
 FOR EACH ROW
 EXECUTE PROCEDURE dodaj_do_historii_wybiegow();
+
+CREATE OR REPLACE FUNCTION dodaj_do_historii_pracownikow() RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO historia_pracownikow (, data_usuniecia)
+    VALUES (OLD, CURRENT_DATE);
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER dodaj_do_historii_pracownikow
+AFTER DELETE ON pracownicy_stanowiska
+FOR EACH ROW
+EXECUTE PROCEDURE dodaj_do_historii_pracownikow();
+
+CREATE OR REPLACE FUNCTION dodaj_do_historii_godzin_otwarcia() RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO historia_godzin_otwarcia (, data_usuniecia)
+    VALUES (OLD, CURRENT_DATE);
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER dodaj_do_historii_godzin_otwarcia
+AFTER DELETE ON wybiegi
+FOR EACH ROW
+EXECUTE PROCEDURE dodaj_do_historii_godzin_otwarcia();
