@@ -29,7 +29,9 @@ DROP VIEW IF EXISTS plan_godziny_otwarcia CASCADE;
 CREATE TABLE godziny_otwarcia (
     dzien_tygodnia INTEGER PRIMARY KEY CHECK(dzien_tygodnia >= 1 AND dzien_tygodnia <= 7),
     otwarcie TIME NOT NULL,
-    zamkniecie TIME CHECK(zamkniecie > otwarcie) NOT NULL
+    zamkniecie TIME CHECK(zamkniecie > otwarcie) NOT NULL,
+    data_wprowadzenia DATE CHECK(data_wprowadzenia <= CURRENT_DATE) NOT NULL DEFAULT CURRENT_DATE
+
 );
 
 CREATE TABLE pracownicy (
@@ -77,18 +79,18 @@ CREATE TABLE zwierzeta (
     gatunek INTEGER REFERENCES gatunki(id) NOT NULL,
     imie VARCHAR(40),
     poziom_umiejetnosci INTEGER CHECK(poziom_umiejetnosci >= 0 AND poziom_umiejetnosci <= 10) NOT NULL,
-    data_dodania DATE NOT NULL  --dodac do insertow
+    data_dodania DATE DEFAULT CURRENT_DATE CHECK(data_dodania <= CURRENT_DATE) NOT NULL
 );
 
 CREATE TABLE pracownicy_stanowiska (
     id_pracownika INTEGER REFERENCES pracownicy(id),
     id_stanowiska INTEGER REFERENCES stanowiska(id),
-    data_dodania DATE NOT NULL,
+    data_dodania DATE DEFAULT CURRENT_DATE CHECK(data_dodania <= CURRENT_DATE) NOT NULL,
     PRIMARY KEY(id_pracownika, id_stanowiska)
 );
 
 
-CREATE TABLE trenerzy_gatunki ( --kazdy trener musi miec przypisany gatunek
+CREATE TABLE trenerzy_gatunki (
     id_pracownika INTEGER REFERENCES pracownicy(id),
     id_gatunku INTEGER REFERENCES gatunki(id),
     PRIMARY KEY(id_pracownika, id_gatunku)
@@ -179,42 +181,73 @@ AND godzina_do < (SELECT zamkniecie FROM godziny_otwarcia WHERE dzien_tygodnia =
 ORDER BY data, godzina_od;
 
 --=================== histora ====================
-CREATE TABLE historia_wybiegow AS SELECT *, NULL::date as data_usuniecia FROM wybiegi;
-ALTER TABLE historia_wybiegow ADD PRIMARY KEY (id, data_usuniecia);
-ALTER TABLE historia_wybiegow ADD FOREIGN KEY (strefa) REFERENCES strefy(id);
+CREATE TABLE historia_zwierzat (
+    id_zwierzecia INTEGER,
+    data_usuniecia DATE NOT NULL,
+    PRIMARY KEY(id_zwierzecia, data_usuniecia)
+);
 
-CREATE TABLE historia_zwierzat AS SELECT *, NULL::date as data_usuniecia FROM zwierzeta;
-ALTER TABLE historia_zwierzat ADD PRIMARY KEY (id, data_usuniecia);
-ALTER TABLE historia_zwierzat ADD FOREIGN KEY (gatunek) REFERENCES gatunki(id);
+CREATE TABLE historia_pracownicy_godziny_pracy (
+    id_pracownika INTEGER NOT NULL,
+    dzien_tygodnia INTEGER CHECK(dzien_tygodnia >= 1 AND dzien_tygodnia <= 7) NOT NULL,
+    godzina_od TIME NOT NULL,
+    godzina_do TIME NOT NULL,
+    data_zmiany DATE NOT NULL,
+    PRIMARY KEY(id_pracownika, dzien_tygodnia, data_zmiany),
+    FOREIGN KEY(id_pracownika) REFERENCES pracownicy (id) ON DELETE CASCADE
+);
 
-CREATE TABLE historia_pracownikow AS SELECT *, NULL::date as data_usuniecia FROM pracownicy;
-ALTER TABLE historia_pracownikow ADD PRIMARY KEY (id, data_usuniecia);
-
-CREATE TABLE historia_godzin_otwarcia AS SELECT *, NULL::date as data_usuniecia FROM godziny_otwarcia;
-ALTER TABLE historia_wybiegow ADD PRIMARY KEY (id, data_usuniecia);
-
---========================================= TRIGGERY =========================================--
-
-CREATE OR REPLACE FUNCTION moj_hash(str text)
-RETURNS integer AS $$
-DECLARE
-    hash_value integer := 0;
-    prime integer := 31;
-    mod integer := 1000000007;
-    c char;
+CREATE OR REPLACE FUNCTION update_historia_pracownicy_godziny_pracy() RETURNS TRIGGER AS $$
 BEGIN
-    FOR i in 1..length(str) LOOP
-        c := substr(str, i, 1);
-        hash_value := (hash_value * prime + ascii(c)) % mod;
-    END LOOP;
-    RETURN hash_value;
+    INSERT INTO historia_pracownicy_godziny_pracy (id_pracownika, dzien_tygodnia, godzina_od, godzina_do, data_zmiany)
+    VALUES (OLD.id_pracownika, OLD.dzien_tygodnia, OLD.godzina_od, OLD.godzina_do, CURRENT_DATE);
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER hash_password
-BEFORE INSERT OR UPDATE ON pracownicy
+CREATE TRIGGER update_historia_pracownicy_godziny_pracy_trigger
+AFTER UPDATE OR DELETE ON pracownicy_godziny_pracy
 FOR EACH ROW
-EXECUTE FUNCTION moj_hash();
+EXECUTE FUNCTION update_historia_pracownicy_godziny_pracy();
+
+CREATE TABLE historia_godziny_otwarcia (
+    dzien_tygodnia INTEGER PRIMARY KEY CHECK(dzien_tygodnia >= 1 AND dzien_tygodnia <= 7),
+    otwarcie TIME NOT NULL,
+    zamkniecie TIME CHECK(zamkniecie > otwarcie) NOT NULL,
+    data_wprowadzenia TIME NOT NULL,
+    data_usuniecia DATE NOT NULL
+);
+
+CREATE OR REPLACE FUNCTION update_historia_godziny_otwarcia() RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.dzien_tygodnia = OLD.dzien_tygodnia AND NEW.otwarcie = OLD.otwarcie AND NEW.zamkniecie = OLD.zamkniecie THEN
+        RETURN NEW;
+    END IF;
+    INSERT INTO historia_godziny_otwarcia (dzien_tygodnia, otwarcie, zamkniecie, data_wprowadzenia, data_usuniecia)
+    VALUES (NEW.dzien_tygodnia, NEW.otwarcie, NEW.zamkniecie, CURRENT_DATE, CURRENT_DATE);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_historia_godziny_otwarcia_trigger
+AFTER INSERT OR UPDATE ON godziny_otwarcia
+FOR EACH ROW
+EXECUTE FUNCTION update_historia_godziny_otwarcia();
+
+CREATE TABLE historia_opiekunowie_gatunki (
+    id_pracownika INTEGER REFERENCES pracownicy(id),
+    id_gatunku INTEGER REFERENCES gatunki(id),
+    data_usuniecia DATE NOT NULL,
+    PRIMARY KEY(id_pracownika, id_gatunku, data_usuniecia)
+);
+
+CREATE RULE historia_zwierzat_insert AS ON INSERT TO historia_zwierzat DO INSTEAD NOTHING;
+CREATE RULE historia_pracownicy_godziny_pracy_insert AS ON INSERT TO historia_pracownicy_godziny_pracy DO INSTEAD NOTHING;
+CREATE RULE historia_godziny_otwarcia_insert AS ON INSERT TO historia_godziny_otwarcia DO INSTEAD NOTHING;
+CREATE RULE historia_opiekunowie_gatunki_insert AS ON INSERT TO historia_opiekunowie_gatunki DO INSTEAD NOTHING;
+
+
+--========================================= TRIGGERY =========================================--
 
 
 --============================================== INDEKSY =============================================--
@@ -409,6 +442,39 @@ $check_popisy$ LANGUAGE plpgsql;
 CREATE TRIGGER check_popisy
     BEFORE INSERT OR UPDATE ON plan_dnia
     FOR EACH ROW EXECUTE FUNCTION check_popisy();
+
+
+--!!!!
+CREATE OR REPLACE FUNCTION cascade_delete_pracownicy() RETURNS TRIGGER AS $$
+BEGIN
+    DELETE FROM pracownicy_godziny_pracy WHERE id_pracownika = OLD.id;
+    DELETE FROM pracownicy_stanowiska WHERE id_pracownika = OLD.id;
+    DELETE FROM trenerzy_gatunki WHERE id_pracownika = OLD.id;
+    DELETE FROM opiekunowie_gatunki WHERE id_pracownika = OLD.id;
+    DELETE FROM sprzatacze_wybiegi WHERE id_pracownika = OLD.id;
+    DELETE FROM nieobecnosci_pracownikow WHERE id_pracownika = OLD.id;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER cascade_delete_pracownicy_trigger
+BEFORE DELETE ON pracownicy
+FOR EACH ROW
+EXECUTE FUNCTION cascade_delete_pracownicy();
+
+
+CREATE OR REPLACE FUNCTION cascade_delete_gatunki() RETURNS TRIGGER AS $$
+BEGIN
+    DELETE FROM zwierzeta WHERE gatunek = OLD.id;
+    DELETE FROM opiekunowie_gatunki WHERE id_gatunku = OLD.id;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER cascade_delete_gatunki_trigger
+BEFORE DELETE ON gatunki
+FOR EACH ROW
+EXECUTE FUNCTION cascade_delete_gatunki();
 -------------------------------------------------------------------------------------
 --=================================== HISTORIC TRIGGERS =========================================
 
@@ -503,7 +569,7 @@ FOR EACH ROW EXECUTE PROCEDURE check_gatunki();
 CREATE OR REPLACE FUNCTION check_sprzatacz() RETURNS TRIGGER AS $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pracownicy_stanowiska ps JOIN stanowiska s ON ps.id_stanowiska = s.id WHERE s.nazwa = 'sprzatacz' AND ps.id_pracownika IN (SELECT id_pracownika FROM sprzatacze_wybiegi WHERE id_wybiegu = NEW.id)) THEN
-        RAISE EXCEPTION 'kazdy wybieg musi miec  sprzatacza';
+        RAISE EXCEPTION 'kazdy wybieg musi miec sprzatacza';
     END IF;
     RETURN NEW;
 END;
